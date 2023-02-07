@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Link, HeadFC, PageProps } from "gatsby"
-
+import { Router } from "@reach/router"
 const pageStyles = {
   color: "#232129",
   padding: "96px",
