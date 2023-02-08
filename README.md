@@ -7,11 +7,11 @@
   Gatsby minimal TypeScript starter
 </h1>
 
-<h1> Ensure you install auth0 using 
-    ```shell
+<h1> Ensure you install auth0 using </h1>
+    	```shell
 	npm install @auth0/auth0-react
 	```
-prior to develop </h1>
+<h1>prior to develop </h1>
 ## 🚀 Quick start
 
 1.  **Create a Gatsby site.**
