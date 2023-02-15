@@ -12,7 +12,7 @@
 
 	npm install @auth0/auth0-react
 <h1> also </h1>
-npm install gatsby-source-mysql
+	npm install gatsby-source-mysql
 <h1>ensure that sql database is running as expected and that the name matches the one found in </h1> gatsby-config.ts
 <h1>prior to develop </h1>
 
