@@ -1,5 +1,5 @@
 import React from "react"
-import { useAuth0 } from "../services/auth"
+import { useAuth0 } from "@auth0/auth0-react"
 
 const Layout = ({ children }) => {
   const { loading } = useAuth0()
