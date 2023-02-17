@@ -107,8 +107,8 @@ const IndexPage: React.FC<PageProps> = () => {
   return (
     <main style={pageStyles}>
   <Auth0Provider
-    domain="dev-rvit82678d52vp8n.us.auth0.com"
-    clientId="isl4m5q40vlgRy2eIEGXP5c5xAjq9gJ6"
+   domain={process.env.AUTH0_DOMAIN}
+   clientId={process.env.AUTH0_CLIENTID}
     authorizationParams={{
       redirect_uri: window.location.origin
     }}
