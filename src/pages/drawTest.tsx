@@ -1,5 +1,7 @@
 import React, { useLayoutEffect, useState } from "react";
 
+declare var ctx: any;
+
 const DrawTest = () => {
 
     const[elements, setElements] = useState([]);
@@ -7,16 +9,18 @@ const DrawTest = () => {
 
     useLayoutEffect(() => {
         const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-        const ctx = canvas.getContext("2d");
+        globalThis.ctx = canvas.getContext("2d");
         ctx.clearRect(0 ,0 , canvas.width, canvas.height)
 
         ctx.fillStyle = "black";
         
-        elements.forEach(element => canvas.draw(element))
+        
+        elements.forEach(element => ctx.strokeRect(element.x1, element.y1, element.x2, element.y2))
     }, [elements]);
 
     function createElement(x1:number, y1:number, x2:number, y2:number) {
-        const element = ctx.fillRect(x1, y1, x2, y2);
+        const context = ctx;
+        const element = context.fillRect(x1, y1, x2, y2);
         return {x1, y1, x2, y2, element};
     }
 
@@ -25,7 +29,7 @@ const DrawTest = () => {
 
         const {clientX, clientY} = event;
 
-        const element = createElement(clientX, clientY, clientX, clientY);
+        const element = createElement(clientX, clientY, 0, 0);
         setElements(prevState => [...prevState, element]);
     };
 
@@ -35,7 +39,7 @@ const DrawTest = () => {
         const {clientX, clientY} = event;
         const index = elements.length - 1;
         const {x1, y1} = elements[index];
-        const updatedElement = createElement(x1, y1, clientX, clientY);
+        const updatedElement = createElement(x1, y1, clientX - x1, clientY - y1);
 
         const elementsCopy = [...elements];
         elementsCopy[index] = updatedElement;
