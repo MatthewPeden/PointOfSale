@@ -18,7 +18,11 @@
   "dependencies": {
     "@auth0/auth0-react": "^2.0.0",
     "@auth0/auth0-spa-js": "^2.0.3",
+    "express": "^4.18.2",
+    "express-jwt": "^8.4.1",
+    "express-oauth2-bearer": "^0.4.1",
     "gatsby": "^5.4.2",
+    "jwks-rsa": "^3.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
