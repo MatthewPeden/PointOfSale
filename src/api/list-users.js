@@ -10,8 +10,8 @@ const { auth } = require("express-oauth2-bearer");
 const app = express();
 
 // Define your Auth0 domain and audience
-const auth0Domain = process.env.auth0Domain;
-// const auth0Audience = "YOUR_AUTH0_AUDIENCE";
+const auth0Domain = process.env.AUTH0Domain;
+ const auth0Audience = process.env.AUTH0_AUDIENCE;
 
 // Define a middleware to validate and check the access token
 app.use(
@@ -25,8 +25,8 @@ app.use(
     }),
 
     // Validate the audience and issuer
-    // audience: auth0Audience,
-    issuerBaseURL: process.env.issuerBaseURL,
+    audience: auth0Audience,
+    issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
     algorithms: ["RS256"],
   })
 );
@@ -51,8 +51,8 @@ app.get("/", async (req, res) => {
     // Initialize Auth0 Management API client with your credentials
     const management = new ManagementClient({
       domain: auth0Domain,
-      clientId: "YOUR_MANAGEMENT_API_CLIENT_ID",
-      clientSecret: "YOUR_MANAGEMENT_API_CLIENT_SECRET",
+      clientId: "process.env.AUTH0_CLIENTID",
+      clientSecret: "K6rhuHd9vIvdtlhdPxq2DdaUH8oN1WiCY38umCq2VLbo1rLoBkV24nODw9N-HeIE",
       scope: "read:users",
       audience: `https://${auth0Domain}/api/v2/`,
     });

@@ -22,23 +22,22 @@ const UsersPage = () => {
       const role = "Manager";
 
       // Make a GET request to serverless function with access token and role as headers
-      const response = await fetch("/../api/list-users", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Role: role,
-        },
-      });
+      const response = await fetch("/../api/userlist?role=Manager", {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
 
       // Parse response as JSON
-      const json = await response.json();
+      const data = await response.json();
 
       // Check if response is successful
       if (response.ok) {
         // Set data state variable with JSON data
-        setData(json);
+        setData(data);
       } else {
         // Set error state variable with JSON error message
-        setError(json.error);
+        setError(data.error);
       }
     } catch (error) {
       // Handle errors and set error state variable with error message
@@ -54,6 +53,13 @@ const UsersPage = () => {
 
    return (
     <div>
+    if (data) {
+  // Render the code value as text
+  <div className="item">{data.code}</div>
+} else {
+  // Handle the case when data is null
+  <div className="item">No data found</div>
+}
       <h1>Users Page</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
       {data ? (
@@ -76,7 +82,9 @@ const UsersPage = () => {
       ) : (
         <p>Loading...</p>
       )}
+      {/*<div className="item">{data.code}</div>*/}
     </div>
+
   );
 };
 
