@@ -1,37 +1,46 @@
-// src/api/list-users.js
+// src/api/userlist.js
 
 const express = require("express");
-const jwt = require("express-jwt");
-const jwksRsa = require("jwks-rsa");
+//  const jwt = require("express-jwt");
+// const { expressjwt: jwt } = require("express-jwt");
+// const jwksRsa = require("jwks-rsa");
 const { auth } = require("express-oauth2-bearer");
 
 // Create an Express app
 const app = express();
 
 // Define your Auth0 domain and audience
-const auth0Domain = "dev-rvit82678d52vp8n.us.auth0.com";
-// const auth0Audience = "YOUR_AUTH0_AUDIENCE";
+const auth0Domain = process.env.AUTH0Domain;
+ const auth0Audience = process.env.AUTH0_AUDIENCE;
 
 // Define a middleware to validate and check the access token
 app.use(
-  jwt({
-    // Dynamically provide a signing key based on the kid in the header and the signing keys provided by the JWKS endpoint.
-    secret: jwksRsa.expressJwtSecret({
-      cache: true,
-      rateLimit: true,
-      jwksRequestsPerMinute: 5,
-      jwksUri: `https://${auth0Domain}/.well-known/jwks.json`,
-    }),
+  // jwt({
+  //   // Dynamically provide a signing key based on the kid in the header and the signing keys provided by the JWKS endpoint.
+  //   secret: jwksRsa.expressJwtSecret({
+  //     cache: true,
+  //     rateLimit: true,
+  //     jwksRequestsPerMinute: 5,
+  //     jwksUri: `https://${auth0Domain}/.well-known/jwks.json`,
+  //   }),
 
-    // Validate the audience and issuer
-    // audience: auth0Audience,
-    issuer: `https://${auth0Domain}/`,
+  //   // Validate the audience and issuer
+  //   audience: auth0Audience,
+  //   issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+  //   algorithms: ["RS256"],
+  // })
+  
+  auth({
+    issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
+    audience: auth0Audience,
     algorithms: ["RS256"],
+    requiredScopes: ["read:users"],
+    allowedAudiences: [auth0Audience]
   })
 );
 
 // Define another middleware to check if the user has a specific scope
-app.use(auth({ requiredScopes: ["read:users"] }));
+// app.use(auth({ requiredScopes: ["read:users"] }));
 
 // Define your logic for listing users by role
 app.get("/", async (req, res) => {
@@ -50,10 +59,10 @@ app.get("/", async (req, res) => {
     // Initialize Auth0 Management API client with your credentials
     const management = new ManagementClient({
       domain: auth0Domain,
-      clientId: "YOUR_MANAGEMENT_API_CLIENT_ID",
-      clientSecret: "YOUR_MANAGEMENT_API_CLIENT_SECRET",
+      clientId: process.env.AUTH0_CLIENTID,
+      clientSecret: process.env.AUTH0_CLIENTSECRET,
       scope: "read:users",
-      audience: `https://${auth0Domain}/api/v2/`,
+      audience: process.env.AUTH0_AUDIENCE,
     });
 
     // Get all users with a specific role using Auth0 Management API SDK
@@ -68,4 +77,6 @@ app.get("/", async (req, res) => {
   }
 });
 
-module.exports.handler = app;
+// module.exports.handler = app;
+module.exports = app;
+
