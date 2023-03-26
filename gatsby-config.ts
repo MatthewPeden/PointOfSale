@@ -38,13 +38,19 @@ module.exports = {
         },
         queries: [
           {
-            statement: 'SELECT * FROM Inventory',
-            idFieldName: 'Name',
-            name: 'Item_Name'
-          }
+            statement: 'SELECT * FROM orders',
+            idFieldName: 'order_id',
+            name: 'orders',
+          },
         ]
       }
-    }
+    },
+    {
+      resolve: `gatsby-plugin-typegen`,
+      options: {
+        outputPath: `src/__generated__/gatsby-types.d.ts`,
+      },
+    },
     // ... other plugins
   ]
 };
