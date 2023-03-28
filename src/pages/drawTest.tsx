@@ -68,6 +68,7 @@ const DrawTest = () => {
     const [action, setAction] = useState("none");
     const [tool, setTool] = useState("table");
     const [selectedElement, setSelectedElement] = useState(null);
+    const [copiedElement, setCopiedElement] = useState(null);
 
     const [mousePos, setMousePos] = useState({});
 
@@ -126,7 +127,35 @@ const DrawTest = () => {
                     setAction("resize");
                 }
             }
-        } else {
+        }
+        else if (tool === 'copy') {
+            const element = getElementAtPosistion(clientX, clientY, elements);
+            if (element) {
+                setCopiedElement(element);
+                setSelectedElement(element);
+            }
+        }
+        else if (tool === 'paste') {
+            const element = copiedElement;
+            if (element) {
+                const id = elements.length;
+                const newElement = createElement(id, clientX - (element.x2 / 2), clientY - (element.y2 / 2), element.x2, element.y2, element.tool);
+                setElements(prevState => [...prevState, newElement]);
+                setSelectedElement(newElement);
+            }
+        }
+        else if (tool === 'delete') {
+            const element = getElementAtPosistion(clientX, clientY, elements);
+            if (element) {
+                const elementsCopy = [...elements];
+                elementsCopy.splice(element.id, 1);
+                elementsCopy.forEach((element: { id: number; }, index: number) => {
+                    element.id = index;
+                });
+                setElements(elementsCopy);
+            }
+        }
+        else {
             const id = elements.length;
             const element = createElement(id, clientX, clientY, 0, 0, tool);
             setElements(prevState => [...prevState, element]);
@@ -144,6 +173,19 @@ const DrawTest = () => {
 
             event.target.style.cursor = element
                 ? cursorForPosition(element.position)
+                : "default";
+        }
+        else if (tool === "copy") {
+            event.target.style.cursor = getElementAtPosistion(clientX, clientY, elements)
+                ? "cell"
+                : "default";
+        }
+        else if (tool === "paste") {
+            event.target.style.cursor = "crosshair";
+        }
+        else if (tool === "delete") {
+            event.target.style.cursor = getElementAtPosistion(clientX, clientY, elements)
+                ? "not-allowed"
                 : "default";
         }
 
@@ -166,10 +208,10 @@ const DrawTest = () => {
     };
 
     const handleMouseUp = (event: any) => {
-        const index = selectedElement.id;
-        const { id, tool } = elements[index];
 
         if (action === 'drawing' || action === 'resize') {
+            const index = selectedElement.id;
+            const { id, tool } = elements[index];
             const { x1, y1, x2, y2 } = adjustElementCoordinates(elements[index]);
             updateElement(id, x1, y1, x2, y2, tool);
         }
@@ -187,6 +229,27 @@ const DrawTest = () => {
                     onChange={() => setTool('selection')}
                 />
                 <label htmlFor="selection">Selection</label>
+                <input
+                    type="radio"
+                    id="copy"
+                    checked={tool === 'copy'}
+                    onChange={() => setTool('copy')}
+                />
+                <label htmlFor="copy">Copy</label>
+                <input
+                    type="radio"
+                    id="paste"
+                    checked={tool === 'paste'}
+                    onChange={() => setTool('paste')}
+                />
+                <label htmlFor="paste">Paste</label>
+                <input
+                    type="radio"
+                    id="delete"
+                    checked={tool === 'delete'}
+                    onChange={() => setTool('delete')}
+                />
+                <label htmlFor="delete">Delete</label>
                 <input
                     type="radio"
                     id="table"
