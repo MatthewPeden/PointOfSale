@@ -91,7 +91,7 @@ const IndexPage: React.FC<PageProps> = () => {
           </div>
         </Navbar>
         <Title>Zamaco® Point of Sale Site</Title>
-        <a href="drawTest"><Button>Start an Order</Button></a>
+        <a href="drawTest"><Button>Create Layout</Button></a>
         <H2>Reports: </H2>
         <div style={{ textAlign: "center" }}>
           <Button href="orders_report">Orders</Button>
