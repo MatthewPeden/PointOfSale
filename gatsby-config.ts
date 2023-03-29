@@ -42,6 +42,16 @@ module.exports = {
             idFieldName: 'order_id',
             name: 'orders',
           },
+          {
+            statement: 'SELECT * FROM payments',
+            idFieldName: 'payment_id',
+            name: 'payments',
+          },
+          {
+            statement: 'SELECT * FROM inventory_items',
+            idFieldName: 'inventory_item_id',
+            name: 'items'
+          },
         ]
       }
     },

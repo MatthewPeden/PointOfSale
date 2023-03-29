@@ -64,32 +64,26 @@ const Table = styled.table`
 `;
 
 interface Payment {
-  payment_method: string;
-}
-
-interface Order {
   node: {
-    order_id: number;
-    total_amount: number;
-    order_date: string;
-    payment: Payment;
+    payment_id: number;
+    amount: number;
+    transaction_date: string;
   };
 }
 
-interface ReportsPageProps {
+interface PaymentsReportPageProps {
   data: {
-    allMysqlOrders: {
-      edges: Order[];
+    allMysqlPayments: {
+      edges: Payment[];
     };
   };
 }
 
-const ReportsPage: React.FC<ReportsPageProps> = ({ data }) => {
+const PaymentsReportPage: React.FC<PaymentsReportPageProps> = ({ data }) => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
 
-  const orders = data.allMysqlOrders.edges;
+  const payments = data.allMysqlPayments.edges;
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<Date | null>>) => {
     const date = new Date(event.target.value);
@@ -98,26 +92,18 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ data }) => {
     }
   };
 
-  const handlePaymentMethodChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedPaymentMethod(event.target.value);
-  };  
-
-  const filteredOrders = orders.filter(({ node }: Order) => {
+  const filteredPayments = payments.filter(({ node }: Payment) => {
     if (!startDate || !endDate) {
       return true;
     }
-    
-    if (selectedPaymentMethod && node.payment.payment_method !== selectedPaymentMethod) {
-      return false;
-    }
   
-    const orderDate = new Date(node.order_date);
-    return orderDate >= startDate && orderDate < new Date(endDate.getTime() + 24 * 60 * 60 * 1000);
+    const paymentDate = new Date(node.transaction_date);
+    return paymentDate >= startDate && paymentDate < new Date(endDate.getTime() + 24 * 60 * 60 * 1000);
   });  
 
   return (
     <Container>
-      <Title>Orders</Title>
+      <Title>Payments</Title>
       <Form>
         <label>
           Start date:
@@ -126,16 +112,6 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ data }) => {
         <label>
           End date:
           <input type="date" onChange={(e) => handleDateChange(e, setEndDate)} />
-        </label>
-        <label>
-          Payment method:
-          <select value={selectedPaymentMethod || ''} onChange={handlePaymentMethodChange}>
-            <option value="">All</option>
-            <option value="credit_card">Credit Card</option>
-            <option value="paypal">PayPal</option>
-            <option value="bitcoin">Bitcoin</option>
-            {/* Add more options as needed */}
-          </select>
         </label>
       </Form>
       <Table>
@@ -147,11 +123,11 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ data }) => {
           </tr>
         </thead>
         <tbody>
-          {filteredOrders.map(({ node }: Order) => (
-            <tr key={node.order_id}>
-              <td>{node.order_id}</td>
-              <td>${node.total_amount}</td>
-              <td>{format(new Date(node.order_date), 'MMM d, yyyy')}</td>
+          {filteredPayments.map(({ node }: Payment) => (
+            <tr key={node.payment_id}>
+              <td>{node.payment_id}</td>
+              <td>${node.amount}</td>
+              <td>{format(new Date(node.transaction_date), 'MMM d, yyyy')}</td>
             </tr>
           ))}
         </tbody>
@@ -161,23 +137,20 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ data }) => {
 };
 
 export const query = graphql`
-  query($startDate: Date, $endDate: Date, $paymentMethod: String) {
-    allMysqlOrders(
-      filter: { order_date: { gte: $startDate, lte: $endDate } }
-      sort: { fields: node___order_date, order_id: DESC }
+  query($startDate: Date, $endDate: Date) {
+    allMysqlPayments(
+      filter: { transaction_date: { gte: $startDate, lte: $endDate } }
+      sort: { payment_id: DESC }
     ) {
       edges {
         node {
-          order_id
-          total_amount
-          order_date
-          payment {
-            payment_method
-          }
+          payment_id
+          amount
+          transaction_date
         }
       }
     }
   }
 `;
 
-export default ReportsPage;
+export default PaymentsReportPage;
