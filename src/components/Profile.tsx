@@ -1,15 +1,14 @@
-import * as React from "react";
-import { useAuth0 } from "@auth0/auth0-react";
+import React from 'react';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
-const Profile = () => {
-  const { user, isAuthenticated, isLoading } = useAuth0();
+export default function Profile() {
+  const { user, error, isLoading } = useUser();
 
-  if (isLoading) {
-    return <div>Loading ...</div>;
-  }
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>{error.message}</div>;
 
   return (
-    isAuthenticated && (
+    user && (
       <div>
         <img src={user.picture} alt={user.name} />
         <h2>{user.name}</h2>
@@ -17,6 +16,4 @@ const Profile = () => {
       </div>
     )
   );
-};
-
-export default Profile;
+}

@@ -1,38 +1,23 @@
 {
-  "name": "point-of-sale",
-  "version": "1.0.0",
+  "name": "zamaco",
+  "version": "0.1.0",
   "private": true,
-  "description": "point-of-sale",
-  "author": "ZaneWillgruber",
-  "keywords": [
-    "gatsby"
-  ],
   "scripts": {
-    "develop": "gatsby develop",
-    "start": "gatsby develop",
-    "build": "gatsby build",
-    "serve": "gatsby serve",
-    "clean": "gatsby clean",
-    "typecheck": "tsc --noEmit"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "@auth0/auth0-react": "^2.0.1",
-    "@auth0/auth0-spa-js": "^2.0.3",
-    "@types/react-helmet": "^6.1.6",
-    "@types/styled-components": "^5.1.26",
-    "gatsby": "^5.4.2",
-    "gatsby-plugin-typegen": "^3.1.0",
-    "gatsby-source-mysql": "^2.2.3",
-    "mysql": "^2.18.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-helmet": "^6.1.0",
-    "styled-components": "^5.3.9"
-  },
-  "devDependencies": {
-    "@types/node": "^18.11.18",
-    "@types/react": "^18.0.26",
-    "@types/react-dom": "^18.0.10",
-    "typescript": "^4.9.4"
+    "@auth0/nextjs-auth0": "^2.4.0",
+    "@types/node": "18.15.11",
+    "@types/react": "18.0.33",
+    "@types/react-dom": "18.0.11",
+    "eslint": "8.38.0",
+    "eslint-config-next": "13.3.0",
+    "next": "13.3.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "5.0.4"
   }
 }
