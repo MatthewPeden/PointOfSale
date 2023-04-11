@@ -15,6 +15,7 @@ if (user){
     return (
       <div>
         <h1>Welcome {user.name}!</h1>
+        <Profile></Profile>
         <p>You are logged in with Auth0.</p>
         <a href="/api/auth/logout">Log out</a>
         <ul>
@@ -28,6 +29,7 @@ if (user){
       </div>
     );
     }
+    else{
   // If the user is not logged in, show a login button
   return (
     <div>
@@ -36,4 +38,5 @@ if (user){
       <a href="/api/auth/login">Log in</a>
     </div>
   );
+    }
 }
