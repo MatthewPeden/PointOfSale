@@ -143,7 +143,7 @@ export async function getServerSideProps() {
     return {
       order_id: row.order_id,
       total_amount: row.total_amount,
-      order_date: row.order_date.toISOString(),
+      order_date: new Date(row.order_date).toISOString(),
     };
   });
 

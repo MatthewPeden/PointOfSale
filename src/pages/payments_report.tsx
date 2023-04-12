@@ -144,7 +144,7 @@ export async function getServerSideProps() {
     return {
       payment_id: row.payment_id,
       amount: row.amount,
-      transaction_date: row.transaction_date.toISOString(),
+      transaction_date: new Date(row.transaction_date).toISOString(),
     };
   });
 

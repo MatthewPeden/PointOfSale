@@ -88,7 +88,7 @@ export async function getServerSideProps() {
     return {
       inventory_item_id: row.inventory_item_id,
       quantity: row.quantity,
-      reorder_point: row.reorder_point.toISOString(),
+      reorder_point: new Date(row.reorder_point).toISOString(),
     };
   });
 
