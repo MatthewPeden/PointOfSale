@@ -63,6 +63,16 @@ const adjustElementCoordinates = (element: any) => {
     else return { x1: x1 + x2, y1: y1 + y2, x2: Math.abs(x2), y2: Math.abs(y2) };
 }
 
+function linkElements(parent: any, child: any) {
+    // const parentCopy = { ...parent };
+    // const childCopy = { ...child };
+
+    parent.children.push(child);
+    child.parent = parent;
+
+    return { parent, child };
+}
+
 const DrawTest = () => {
 
     const [elements, setElements] = useState([]);
@@ -70,6 +80,7 @@ const DrawTest = () => {
     const [tool, setTool] = useState("table");
     const [selectedElement, setSelectedElement] = useState(null);
     const [copiedElement, setCopiedElement] = useState(null);
+    const [elementToLink, setElementToLink] = useState(null);
 
     const [mousePos, setMousePos] = useState({});
 
@@ -95,18 +106,27 @@ const DrawTest = () => {
 
         ctx.fillStyle = "black";
 
+        //draw lines between parents and children
+        elements.forEach(element => {
+            if (element.parent) {
+                ctx.beginPath();
+                ctx.moveTo(element.parent.x1 + element.parent.x2 / 2, element.parent.y1 + element.parent.y2 / 2);
+                ctx.lineTo(element.x1 + element.x2 / 2, element.y1 + element.y2 / 2);
+                ctx.stroke();
+            }
+        });
 
         elements.forEach(element => element.tool === 'table' ? ctx.fillRect(element.x1, element.y1, element.x2, element.y2) : ctx.strokeRect(element.x1, element.y1, element.x2, element.y2))
     }, [elements]);
 
-    function createElement(id: number, x1: number, y1: number, x2: number, y2: number, tool: string) {
+    function createElement(id: number, x1: number, y1: number, x2: number, y2: number, tool: string, children: any[] = [], parent: any = null) {
         const context = ctx;
         const roughElement = tool === 'table' ? context.fillRect(x1, y1, x2, y2) : context.strokeRect(x1, y1, x2, y2);
-        return { id, x1, y1, x2, y2, roughElement, tool };
+        return { id, x1, y1, x2, y2, roughElement, tool, children, parent };
     }
 
-    const updateElement = (id: number, x1: number, y1: number, x2: number, y2: number, tool: string) => {
-        const updatedElement = createElement(id, x1, y1, x2, y2, tool);
+    const updateElement = (id: number, x1: number, y1: number, x2: number, y2: number, tool: string, children: any[], parent: any) => {
+        const updatedElement = createElement(id, x1, y1, x2, y2, tool, children, parent);
 
         const elementsCopy = [...elements];
         elementsCopy[id] = updatedElement;
@@ -156,6 +176,23 @@ const DrawTest = () => {
                 setElements(elementsCopy);
             }
         }
+        else if (tool === 'link') {
+            const element = getElementAtPosistion(clientX, clientY, elements);
+            if (element) {
+                //only link if the first element is a table
+                if (elementToLink && elementToLink.tool === 'table') {
+                    const { parent, child } = linkElements(elementToLink, element);
+                    updateElement(parent.id, parent.x1, parent.y1, parent.x2, parent.y2, parent.tool, parent.children, parent.parent);
+                    updateElement(child.id, child.x1, child.y1, child.x2, child.y2, child.tool, child.children, child.parent);
+                    setSelectedElement(null);
+                    setElementToLink(null);
+                }
+                else {
+                    setSelectedElement(element);
+                    setElementToLink(element);
+                }
+            }
+        }
         else {
             const id = elements.length;
             const element = createElement(id, clientX, clientY, 0, 0, tool);
@@ -195,12 +232,12 @@ const DrawTest = () => {
             const { x1, y1 } = elements[index];
             updateElement(index, x1, y1, clientX - x1, clientY - y1, tool);
         } else if (action === 'moving') {
-            const { id, x2, y2, tool, offsetX, offsetY } = selectedElement;
+            const { id, x2, y2, tool, offsetX, offsetY, children, parent } = selectedElement;
             const width = x2;
             const height = y2;
             const newX1 = clientX - offsetX;
             const newY1 = clientY - offsetY;
-            updateElement(id, newX1, newY1, width, height, tool);
+            updateElement(id, newX1, newY1, width, height, tool, children, parent);
         } else if (action === 'resize') {
             const { id, tool, position, ...coordinates } = selectedElement;
             const { x1, y1, x2, y2 } = resizedCoordinates(clientX, clientY, position, coordinates);
@@ -249,10 +286,10 @@ const DrawTest = () => {
                 <NavbarLink href="#">Log In</NavbarLink>
                 <NavbarLink href="#">Log Out</NavbarLink>
                 <div style={{ padding: "10px" }}>
-                <img
-                    alt="Gatsby G Logo"
-                    src="data:image/svg+xml,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2a10 10 0 110 20 10 10 0 010-20zm0 2c-3.73 0-6.86 2.55-7.75 6L14 19.75c3.45-.89 6-4.02 6-7.75h-5.25v1.5h3.45a6.37 6.37 0 01-3.89 4.44L6.06 9.69C7 7.31 9.3 5.63 12 5.63c2.13 0 4 1.04 5.18 2.65l1.23-1.06A7.959 7.959 0 0012 4zm-8 8a8 8 0 008 8c.04 0 .09 0-8-8z' fill='%23639'/%3E%3C/svg%3E"
-                />
+                    <img
+                        alt="Gatsby G Logo"
+                        src="data:image/svg+xml,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2a10 10 0 110 20 10 10 0 010-20zm0 2c-3.73 0-6.86 2.55-7.75 6L14 19.75c3.45-.89 6-4.02 6-7.75h-5.25v1.5h3.45a6.37 6.37 0 01-3.89 4.44L6.06 9.69C7 7.31 9.3 5.63 12 5.63c2.13 0 4 1.04 5.18 2.65l1.23-1.06A7.959 7.959 0 0012 4zm-8 8a8 8 0 008 8c.04 0 .09 0-8-8z' fill='%23639'/%3E%3C/svg%3E"
+                    />
                 </div>
             </Navbar>
             <div style={{ position: "fixed", marginTop: "60px" }}>
@@ -298,6 +335,20 @@ const DrawTest = () => {
                     onChange={() => setTool('chair')}
                 />
                 <label htmlFor="chair">Chair</label>
+                <input
+                    type="radio"
+                    id="link"
+                    checked={tool === 'link'}
+                    onChange={() => setTool('link')}
+                />
+                <label htmlFor="link">Link</label>
+                <input
+                    type="radio"
+                    id="order"
+                    checked={tool === 'order'}
+                    onChange={() => setTool('order')}
+                />
+                <label htmlFor="order">Order</label>
 
                 The mouse is at position{' '}
                 <b>
