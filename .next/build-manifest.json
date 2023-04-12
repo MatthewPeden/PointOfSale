@@ -25,6 +25,11 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
+    "/inventory_items_report": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/inventory_items_report.js"
+    ],
     "/orders_report": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",

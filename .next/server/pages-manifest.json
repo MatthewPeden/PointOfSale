@@ -2,5 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/orders_report": "pages/orders_report.js"
+  "/orders_report": "pages/orders_report.js",
+  "/api/auth/[...auth0]": "pages/api/auth/[...auth0].js",
+  "/inventory_items_report": "pages/inventory_items_report.js"
 }

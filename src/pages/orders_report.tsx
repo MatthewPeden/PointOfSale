@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { RowDataPacket } from 'mysql2';
 import styled from 'styled-components';
 import { format } from 'date-fns';
-import Link from 'next/link';
 import db from '../../db';
 
 const Container = styled.div`
@@ -64,7 +63,7 @@ const Table = styled.table`
   }
 `;
 
-interface Order extends RowDataPacket {
+interface Order {
   order_id: number;
   total_amount: number;
   order_date: string;
@@ -133,16 +132,24 @@ const OrdersReportPage: React.FC<OrdersReportPageProps> = ({ orders }) => {
 
 export async function getServerSideProps() {
   const connection = await db();
-  const [rows] = await connection.query<RowDataPacket[]>(`
+  const [rows] = await connection.query(`
     SELECT order_id, total_amount, order_date
     FROM orders
   `);
 
   await connection.end();
 
+  const orders: Order[] = (rows as RowDataPacket[]).map((row: any) => {
+    return {
+      order_id: row.order_id,
+      total_amount: row.total_amount,
+      order_date: row.order_date.toISOString(),
+    };
+  });
+
   return {
     props: {
-      orders: rows as Order[],
+      orders: orders,
     },
   };
 }
