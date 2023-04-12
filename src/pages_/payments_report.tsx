@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { graphql } from 'gatsby';
-import { format } from 'date-fns';
+import { RowDataPacket } from 'mysql2';
 import styled from 'styled-components';
-import React from 'react';
+import { format } from 'date-fns';
+import db from '../../db';
 
 const Container = styled.div`
   background-color: #ede6f5;
@@ -63,49 +63,19 @@ const Table = styled.table`
   }
 `;
 
-const Navbar = styled.nav`
-  position: fixed;
-  top: 0;
-  left: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  height: 60px;
-  background-color: #bda0d9;
-  color: white;
-`
-
-
-const NavbarLink = styled.a`
-  color: white;
-  text-decoration: none;
-  margin-right: 20px;
-  padding: 10px;
-`
-
-
 interface Payment {
-  node: {
-    payment_id: number;
-    amount: number;
-    transaction_date: string;
-  };
+  payment_id: number;
+  amount: number;
+  transaction_date: string;
 }
 
 interface PaymentsReportPageProps {
-  data: {
-    allMysqlPayments: {
-      edges: Payment[];
-    };
-  };
+  payments: Payment[];
 }
 
-const PaymentsReportPage: React.FC<PaymentsReportPageProps> = ({ data }) => {
+const PaymentsReportPage: React.FC<PaymentsReportPageProps> = ({ payments }) => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-
-  const payments = data.allMysqlPayments.edges;
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<Date | null>>) => {
     const date = new Date(event.target.value);
@@ -114,29 +84,17 @@ const PaymentsReportPage: React.FC<PaymentsReportPageProps> = ({ data }) => {
     }
   };
 
-  const filteredPayments = payments.filter(({ node }: Payment) => {
+  const filteredPayments = payments.filter((payment: Payment) => {
     if (!startDate || !endDate) {
       return true;
     }
   
-    const paymentDate = new Date(node.transaction_date);
+    const paymentDate = new Date(payment.transaction_date);
     return paymentDate >= startDate && paymentDate < new Date(endDate.getTime() + 24 * 60 * 60 * 1000);
   });  
 
   return (
     <Container>
-      <Navbar>
-        <NavbarLink href="/">Home</NavbarLink>
-        <NavbarLink href="#">About</NavbarLink>
-        <NavbarLink href="#">Log In</NavbarLink>
-        <NavbarLink href="#">Log Out</NavbarLink>
-        <div style={{ padding: "10px" }}>
-          <img
-            alt="Gatsby G Logo"
-            src="data:image/svg+xml,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2a10 10 0 110 20 10 10 0 010-20zm0 2c-3.73 0-6.86 2.55-7.75 6L14 19.75c3.45-.89 6-4.02 6-7.75h-5.25v1.5h3.45a6.37 6.37 0 01-3.89 4.44L6.06 9.69C7 7.31 9.3 5.63 12 5.63c2.13 0 4 1.04 5.18 2.65l1.23-1.06A7.959 7.959 0 0012 4zm-8 8a8 8 0 008 8c.04 0 .09 0-8-8z' fill='%23639'/%3E%3C/svg%3E"
-          />
-        </div>
-      </Navbar>
       <div style = {{ marginTop: "60px" }}>
         <Title>Payments</Title>
         <Form>
@@ -158,11 +116,11 @@ const PaymentsReportPage: React.FC<PaymentsReportPageProps> = ({ data }) => {
             </tr>
           </thead>
           <tbody>
-            {filteredPayments.map(({ node }: Payment) => (
-              <tr key={node.payment_id}>
-                <td>{node.payment_id}</td>
-                <td>${node.amount}</td>
-                <td>{format(new Date(node.transaction_date), 'MMM d, yyyy')}</td>
+            {filteredPayments.map((payment: Payment) => (
+              <tr key={payment.payment_id}>
+                <td>{payment.payment_id}</td>
+                <td>${payment.amount}</td>
+                <td>{format(new Date(payment.transaction_date), 'MMM d, yyyy')}</td>
               </tr>
             ))}
           </tbody>
@@ -172,21 +130,29 @@ const PaymentsReportPage: React.FC<PaymentsReportPageProps> = ({ data }) => {
   );
 };
 
-export const query = graphql`
-  query($startDate: Date, $endDate: Date) {
-    allMysqlPayments(
-      filter: { transaction_date: { gte: $startDate, lte: $endDate } }
-      sort: { payment_id: DESC }
-    ) {
-      edges {
-        node {
-          payment_id
-          amount
-          transaction_date
-        }
-      }
-    }
-  }
-`;
+export async function getServerSideProps() {
+  const connection = await db();
+  const [rows] = await connection.query(`
+    SELECT payment_id, amount, transaction_date
+    FROM payments
+  `);
+
+  await connection.end();
+
+  // Map over the rows and convert order_date to a string
+  const payments: Payment[] = (rows as RowDataPacket[]).map((row: any) => {
+    return {
+      payment_id: row.payment_id,
+      amount: row.amount,
+      transaction_date: row.transaction_date.toISOString(),
+    };
+  });
+
+  return {
+    props: {
+      payments: payments,
+    },
+  };
+}
 
 export default PaymentsReportPage;
