@@ -1,6 +1,8 @@
 import React, { useLayoutEffect, useState } from "react";
 import { useEffect } from 'react';
 import styled from "styled-components";
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
+
 
 declare var ctx: any;
 
@@ -369,4 +371,5 @@ const DrawTest = () => {
     );
 };
 
+export const getServerSideProps = withPageAuthRequired();
 export default DrawTest;

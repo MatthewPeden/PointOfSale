@@ -1,21 +1,8 @@
-// pages/protectedPage.js
+// pages/protected-page.js
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 
-import { withPageAuthRequired, getSession } from "@auth0/nextjs-auth0";
+export default function ProtectedPage() {
+  return <div>Protected content</div>;
+}
 
-const ProtectedPage = ({ user }) => {
-  return <div>This is a protected page! Welcome, {user.name}.</div>;
-};
-
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps({ req, res, ...context }) {
-    const session = await getSession(req, res);
-
-    return {
-      props: {
-        user: session.user,
-      },
-    };
-  },
-});
-
-export default ProtectedPage;
+export const getServerSideProps = withPageAuthRequired();
