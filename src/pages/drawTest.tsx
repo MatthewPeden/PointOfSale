@@ -388,4 +388,5 @@ const DrawTest = () => {
     );
 };
 
+export const getServerSideProps = withPageAuthRequired();
 export default DrawTest;

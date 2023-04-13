@@ -3,6 +3,7 @@ import { RowDataPacket } from 'mysql2';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import db from '../../db';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 
 const Container = styled.div`
   background-color: #ede6f5;
@@ -130,28 +131,30 @@ const OrdersReportPage: React.FC<OrdersReportPageProps> = ({ orders }) => {
   );
 };
 
-export async function getServerSideProps() {
-  const connection = await db();
-  const [rows] = await connection.query(`
-    SELECT order_id, total_amount, order_date
-    FROM orders
-  `);
+export const getServerSideProps = withPageAuthRequired({
+  async getServerSideProps(context) {
+    const connection = await db();
+    const [rows] = await connection.query(`
+      SELECT order_id, total_amount, order_date
+      FROM orders
+      `);
 
-  await connection.end();
+    await connection.end();
 
-  const orders: Order[] = (rows as RowDataPacket[]).map((row: any) => {
+    const orders: Order[] = (rows as RowDataPacket[]).map((row: any) => {
+      return {
+        order_id: row.order_id,
+        total_amount: row.total_amount,
+        order_date: new Date(row.order_date).toISOString(),
+      };
+    });
+
     return {
-      order_id: row.order_id,
-      total_amount: row.total_amount,
-      order_date: new Date(row.order_date).toISOString(),
+      props: {
+        orders: orders,
+      },
     };
-  });
-
-  return {
-    props: {
-      orders: orders,
-    },
-  };
-}
+  },
+});
 
 export default OrdersReportPage;

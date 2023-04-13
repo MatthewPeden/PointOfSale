@@ -3,6 +3,8 @@ import { RowDataPacket } from 'mysql2';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import db from '../../db';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
+
 
 const Container = styled.div`
   background-color: #ede6f5;
@@ -75,28 +77,32 @@ const InventoryItemReportPage: React.FC<InventoryItemReportPageProps> = ({ inven
   );
 };
 
-export async function getServerSideProps() {
-  const connection = await db();
-  const [rows] = await connection.query(`
-    SELECT inventory_item_id, quantity, reorder_point
-    FROM inventory_items
-  `);
+export const getServerSideProps = withPageAuthRequired({
+  async getServerSideProps(context) {
+    const connection = await db();
+    const [rows] = await connection.query(`
+      SELECT inventory_item_id, quantity, reorder_point
+      FROM inventory_items
+    `);
 
-  await connection.end();
+    await connection.end();
 
-  const inventory_items: InventoryItem[] = (rows as RowDataPacket[]).map((row: any) => {
+    const inventory_items: InventoryItem[] = (rows as RowDataPacket[]).map((row: any) => {
+      return {
+        inventory_item_id: row.inventory_item_id,
+        quantity: row.quantity,
+        reorder_point: new Date(row.reorder_point).toISOString(),
+      };
+    });
+
     return {
-      inventory_item_id: row.inventory_item_id,
-      quantity: row.quantity,
-      reorder_point: new Date(row.reorder_point).toISOString(),
+      props: {
+        inventory_items: inventory_items,
+      },
     };
-  });
+  },
+});
 
-  return {
-    props: {
-      inventory_items: inventory_items,
-    },
-  };
-}
+
 
 export default InventoryItemReportPage;

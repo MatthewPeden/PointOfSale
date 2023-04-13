@@ -3,6 +3,7 @@ import { RowDataPacket } from 'mysql2';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import db from '../../db';
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 
 const Container = styled.div`
   background-color: #ede6f5;
@@ -130,29 +131,32 @@ const PaymentsReportPage: React.FC<PaymentsReportPageProps> = ({ payments }) => 
   );
 };
 
-export async function getServerSideProps() {
-  const connection = await db();
-  const [rows] = await connection.query(`
-    SELECT payment_id, amount, transaction_date
-    FROM payments
-  `);
+export const getServerSideProps = withPageAuthRequired( {
+  async getServerSideProps(context) {
+    const connection = await db();
+    const [rows] = await connection.query(`
+      SELECT payment_id, amount, transaction_date
+      FROM payments
+      `);
 
-  await connection.end();
+    await connection.end();
 
   // Map over the rows and convert order_date to a string
-  const payments: Payment[] = (rows as RowDataPacket[]).map((row: any) => {
-    return {
-      payment_id: row.payment_id,
-      amount: row.amount,
-      transaction_date: new Date(row.transaction_date).toISOString(),
-    };
-  });
+    const payments: Payment[] = (rows as RowDataPacket[]).map((row: any) => {
+      return {
+        payment_id: row.payment_id,
+        amount: row.amount,
+        transaction_date: new Date(row.transaction_date).toISOString(),
+      };
+    });
 
-  return {
-    props: {
-      payments: payments,
-    },
-  };
-}
+    return {
+      props: {
+        payments: payments,
+      },
+    };
+  },
+});
 
 export default PaymentsReportPage;
+  
