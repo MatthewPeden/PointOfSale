@@ -24,6 +24,8 @@ if (user){
           <li><Link href="/inventory_items_report">Inventory Items Report</Link></li>
           <li><Link href="/orders_report">Orders Report</Link></li>
           <li><Link href="/categories">Categories</Link></li>
+          <p></p>
+          <li><Link href="/roleprotected">NEW ROLE TESTING</Link></li>
         </ul>
       </div>
     );
