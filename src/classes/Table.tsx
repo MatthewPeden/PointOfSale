@@ -19,17 +19,17 @@ export class SceneObject {
 export class Table extends SceneObject {
     seats: any[];
 
-    constructor(id: number, x1: number, y1: number, x2:number,  y2: number, seats: any[] = []) {
+    constructor(id: number, x1: number, y1: number, x2:number,  y2: number, seats: Chair[] = []) {
         super(id, x1, y1, x2, y2, "table");
         this.seats = seats;
     }
 }
 
 export class Chair extends SceneObject {
-    tableId: number;
+    table: Table | null;
 
-    constructor(id: number, x1: number, y1: number, x2:number,  y2: number, tableId: number) {
+    constructor(id: number, x1: number, y1: number, x2:number,  y2: number, table: Table | null = null) {
         super(id, x1, y1, x2, y2, "chair");
-        this.tableId = tableId;
+        this.table = table;
     }
 }

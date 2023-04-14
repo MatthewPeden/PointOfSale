@@ -2,20 +2,21 @@ import React, { useLayoutEffect, useState } from "react";
 import { useEffect } from 'react';
 import styled from "styled-components";
 import { Table, Chair, SceneObject } from "../classes/Table";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 
 declare var ctx: any;
 
 function getElementAtPosistion(x: number, y: number, elements: any[]) {
     const foundElement = elements.find(element => {
-      const position = positionWithinElement(x, y, element);
-      if (position !== null) {
-        element.position = position; // modify the original object
-        return true; // return the modified object
-      }
-      return false;
+        const position = positionWithinElement(x, y, element);
+        if (position !== null) {
+            element.position = position; // modify the original object
+            return true; // return the modified object
+        }
+        return false;
     });
     return foundElement || null; // return null if no element is found
-  }
+}
 
 function positionWithinElement(x: number, y: number, element: any) {
     const { x1, x2, y1, y2 } = element;
@@ -128,13 +129,13 @@ const DrawTest = () => {
         elements.forEach(element => element.tool === 'table' ? ctx.fillRect(element.x1, element.y1, element.x2, element.y2) : ctx.strokeRect(element.x1, element.y1, element.x2, element.y2))
     });
 
-    function createElement(element: SceneObject) {
+    function createElement(element: Table | Chair) {
         const context = ctx;
-        const roughElement = element.tool === 'table' ? context.fillRect(element.x1, element.y1, element.x2, element.y2) : context.strokeRect(element.x1, element.y1, element.x2, element.y2);
+        const roughElement = element instanceof Table ? context.fillRect(element.x1, element.y1, element.x2, element.y2) : context.strokeRect(element.x1, element.y1, element.x2, element.y2);
         return { element, roughElement };
     }
 
-    const updateElement = (element: SceneObject) => {
+    const updateElement = (element: Table | Chair) => {
         const updatedElement = createElement(element);
 
         const elementsCopy = [...elements];
@@ -205,7 +206,7 @@ const DrawTest = () => {
         }
         else {
             const id = elements.length;
-            const newElement = new SceneObject(id, clientX, clientY, 0, 0, tool); 
+            const newElement = tool === "table" ? new Table(id, clientX, clientY, 0, 0) : new Chair(id, clientX, clientY, 0, 0);
             const element = createElement(newElement);
             setElements(prevState => [...prevState, element.element]);
             setSelectedElement(element.element);
@@ -241,11 +242,14 @@ const DrawTest = () => {
         if (action === "drawing") {
             const index = elements.length - 1;
             const { x1, y1 } = elements[index];
-            const updatedElement = new SceneObject(index, x1, y1, clientX - x1, clientY - y1, tool);
-            updateElement(updatedElement);
+            const updatedElement2 = selectedElement;
+            if (updatedElement2) {
+                updatedElement2.x2 = clientX - x1;
+                updatedElement2.y2 = clientY - y1;
+            }
         } else if (action === 'moving') {
             //const { id, x2, y2, tool, offsetX, offsetY, children, parent } = selectedElement;
-            if(!selectedElement) return;
+            if (!selectedElement) return;
             const width = selectedElement.x2;
             const height = selectedElement.y2;
             const newX1 = clientX - offsets.x;
@@ -258,9 +262,14 @@ const DrawTest = () => {
             //const updatedElement = new SceneObject(selectedElement.id, newX1, newY1, width, height, selectedElement.tool);
             //updateElement(updatedElement);
         } else if (action === 'resize') {
-            const { id, tool, position, ...coordinates } = selectedElement;
-            const { x1, y1, x2, y2 } = resizedCoordinates(clientX, clientY, position, coordinates);
-            updateElement(id, x1, y1, x2, y2, tool);
+            //const { id, tool, position, ...coordinates } = selectedElement;
+            const resizeElement = selectedElement;
+            const { x1, y1, x2, y2 } = resizedCoordinates(clientX, clientY, resizeElement.position, { x1: resizeElement.x1, y1: resizeElement.y1, x2: resizeElement.x2, y2: resizeElement.y2 });
+            resizeElement.x1 = x1;
+            resizeElement.y1 = y1;
+            resizeElement.x2 = x2;
+            resizeElement.y2 = y2;
+            //updateElement(id, x1, y1, x2, y2, tool);
         }
     };
 
