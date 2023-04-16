@@ -24,5 +24,3 @@ const withRole = (role: string) => async ({ req, res }: NextPageContext) => {
 export const getServerSidePropsForManager = withRole('Manager');
 export const getServerSidePropsForEmployee = withRole('Employee');
 export const getServerSidePropsForCustomer = withRole('Customer');
-
-// Use the appropriate getServerSideProps function for each page
