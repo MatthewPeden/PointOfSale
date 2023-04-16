@@ -1,14 +1,21 @@
 import React, { useLayoutEffect, useState } from "react";
 import { useEffect } from 'react';
 import styled from "styled-components";
-import { withPageAuthRequired } from '@auth0/nextjs-auth0';
-
+import { Table, Chair, SceneObject } from "../classes/Table";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 
 declare var ctx: any;
 
 function getElementAtPosistion(x: number, y: number, elements: any[]) {
-    return elements.map(element => ({ ...element, position: positionWithinElement(x, y, element) }))
-        .find(element => element.position !== null);
+    const foundElement = elements.find(element => {
+        const position = positionWithinElement(x, y, element);
+        if (position !== null) {
+            element.position = position; // modify the original object
+            return true; // return the modified object
+        }
+        return false;
+    });
+    return foundElement || null; // return null if no element is found
 }
 
 function positionWithinElement(x: number, y: number, element: any) {
@@ -77,12 +84,13 @@ function linkElements(parent: any, child: any) {
 
 const DrawTest = () => {
 
-    const [elements, setElements] = useState([]);
+    const [elements, setElements] = useState<SceneObject[]>([]);
     const [action, setAction] = useState("none");
     const [tool, setTool] = useState("table");
-    const [selectedElement, setSelectedElement] = useState(null);
+    const [selectedElement, setSelectedElement] = useState<SceneObject | null>(null);
     const [copiedElement, setCopiedElement] = useState(null);
     const [elementToLink, setElementToLink] = useState(null);
+    const [offsets, setOffsets] = useState({ x: 0, y: 0 });
 
     const [mousePos, setMousePos] = useState({});
 
@@ -108,30 +116,30 @@ const DrawTest = () => {
 
         ctx.fillStyle = "black";
 
-        //draw lines between parents and children
-        elements.forEach(element => {
-            if (element.parent) {
-                ctx.beginPath();
-                ctx.moveTo(element.parent.x1 + element.parent.x2 / 2, element.parent.y1 + element.parent.y2 / 2);
-                ctx.lineTo(element.x1 + element.x2 / 2, element.y1 + element.y2 / 2);
-                ctx.stroke();
-            }
-        });
+        // //draw lines between parents and children
+        // elements.forEach(element => {
+        //     if (element.parent) {
+        //         ctx.beginPath();
+        //         ctx.moveTo(element.parent.x1 + element.parent.x2 / 2, element.parent.y1 + element.parent.y2 / 2);
+        //         ctx.lineTo(element.x1 + element.x2 / 2, element.y1 + element.y2 / 2);
+        //         ctx.stroke();
+        //     }
+        // });
 
         elements.forEach(element => element.tool === 'table' ? ctx.fillRect(element.x1, element.y1, element.x2, element.y2) : ctx.strokeRect(element.x1, element.y1, element.x2, element.y2))
-    }, [elements]);
+    });
 
-    function createElement(id: number, x1: number, y1: number, x2: number, y2: number, tool: string, children: any[] = [], parent: any = null) {
+    function createElement(element: Table | Chair) {
         const context = ctx;
-        const roughElement = tool === 'table' ? context.fillRect(x1, y1, x2, y2) : context.strokeRect(x1, y1, x2, y2);
-        return { id, x1, y1, x2, y2, roughElement, tool, children, parent };
+        const roughElement = element instanceof Table ? context.fillRect(element.x1, element.y1, element.x2, element.y2) : context.strokeRect(element.x1, element.y1, element.x2, element.y2);
+        return { element, roughElement };
     }
 
-    const updateElement = (id: number, x1: number, y1: number, x2: number, y2: number, tool: string, children: any[], parent: any) => {
-        const updatedElement = createElement(id, x1, y1, x2, y2, tool, children, parent);
+    const updateElement = (element: Table | Chair) => {
+        const updatedElement = createElement(element);
 
         const elementsCopy = [...elements];
-        elementsCopy[id] = updatedElement;
+        elementsCopy[updatedElement.element.id] = updatedElement.element;
         setElements(elementsCopy);
     }
 
@@ -142,7 +150,8 @@ const DrawTest = () => {
             if (element) {
                 const offsetX = clientX - element.x1;
                 const offsetY = clientY - element.y1;
-                setSelectedElement({ ...element, offsetX, offsetY });
+                setSelectedElement(element);
+                setOffsets({ x: offsetX, y: offsetY });
 
                 if (element.position === "inside") {
                     setAction("moving");
@@ -197,9 +206,10 @@ const DrawTest = () => {
         }
         else {
             const id = elements.length;
-            const element = createElement(id, clientX, clientY, 0, 0, tool);
-            setElements(prevState => [...prevState, element]);
-            setSelectedElement(element);
+            const newElement = tool === "table" ? new Table(id, clientX, clientY, 0, 0) : new Chair(id, clientX, clientY, 0, 0);
+            const element = createElement(newElement);
+            setElements(prevState => [...prevState, element.element]);
+            setSelectedElement(element.element);
 
             setAction("drawing");
         }
@@ -232,18 +242,34 @@ const DrawTest = () => {
         if (action === "drawing") {
             const index = elements.length - 1;
             const { x1, y1 } = elements[index];
-            updateElement(index, x1, y1, clientX - x1, clientY - y1, tool);
+            const updatedElement2 = selectedElement;
+            if (updatedElement2) {
+                updatedElement2.x2 = clientX - x1;
+                updatedElement2.y2 = clientY - y1;
+            }
         } else if (action === 'moving') {
-            const { id, x2, y2, tool, offsetX, offsetY, children, parent } = selectedElement;
-            const width = x2;
-            const height = y2;
-            const newX1 = clientX - offsetX;
-            const newY1 = clientY - offsetY;
-            updateElement(id, newX1, newY1, width, height, tool, children, parent);
+            //const { id, x2, y2, tool, offsetX, offsetY, children, parent } = selectedElement;
+            if (!selectedElement) return;
+            const width = selectedElement.x2;
+            const height = selectedElement.y2;
+            const newX1 = clientX - offsets.x;
+            const newY1 = clientY - offsets.y;
+            selectedElement.x1 = newX1;
+            selectedElement.y1 = newY1;
+            selectedElement.x2 = width;
+            selectedElement.y2 = height;
+            //updateElement(selectedElement);
+            //const updatedElement = new SceneObject(selectedElement.id, newX1, newY1, width, height, selectedElement.tool);
+            //updateElement(updatedElement);
         } else if (action === 'resize') {
-            const { id, tool, position, ...coordinates } = selectedElement;
-            const { x1, y1, x2, y2 } = resizedCoordinates(clientX, clientY, position, coordinates);
-            updateElement(id, x1, y1, x2, y2, tool);
+            //const { id, tool, position, ...coordinates } = selectedElement;
+            const resizeElement = selectedElement;
+            const { x1, y1, x2, y2 } = resizedCoordinates(clientX, clientY, resizeElement.position, { x1: resizeElement.x1, y1: resizeElement.y1, x2: resizeElement.x2, y2: resizeElement.y2 });
+            resizeElement.x1 = x1;
+            resizeElement.y1 = y1;
+            resizeElement.x2 = x2;
+            resizeElement.y2 = y2;
+            //updateElement(id, x1, y1, x2, y2, tool);
         }
     };
 
