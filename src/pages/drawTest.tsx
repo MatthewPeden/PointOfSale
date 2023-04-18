@@ -72,12 +72,12 @@ const adjustElementCoordinates = (element: any) => {
     else return { x1: x1 + x2, y1: y1 + y2, x2: Math.abs(x2), y2: Math.abs(y2) };
 }
 
-function linkElements(parent: any, child: any) {
+function linkElements(parent: Table, child: Chair) {
     // const parentCopy = { ...parent };
     // const childCopy = { ...child };
 
-    parent.children.push(child);
-    child.parent = parent;
+    parent.seats.push(child);
+    child.table = parent;
 
     return { parent, child };
 }
@@ -116,15 +116,15 @@ const DrawTest = () => {
 
         ctx.fillStyle = "black";
 
-        // //draw lines between parents and children
-        // elements.forEach(element => {
-        //     if (element.parent) {
-        //         ctx.beginPath();
-        //         ctx.moveTo(element.parent.x1 + element.parent.x2 / 2, element.parent.y1 + element.parent.y2 / 2);
-        //         ctx.lineTo(element.x1 + element.x2 / 2, element.y1 + element.y2 / 2);
-        //         ctx.stroke();
-        //     }
-        // });
+        //draw lines between parents and children
+        elements.forEach(element => {
+            if (element instanceof Chair && element.table) {
+                ctx.beginPath();
+                ctx.moveTo(element.table.x1 + element.table.x2 / 2, element.table.y1 + element.table.y2 / 2);
+                ctx.lineTo(element.x1 + element.x2 / 2, element.y1 + element.y2 / 2);
+                ctx.stroke();
+            }
+        });
 
         elements.forEach(element => element.tool === 'table' ? ctx.fillRect(element.x1, element.y1, element.x2, element.y2) : ctx.strokeRect(element.x1, element.y1, element.x2, element.y2))
     });
@@ -193,8 +193,8 @@ const DrawTest = () => {
                 //only link if the first element is a table
                 if (elementToLink && elementToLink.tool === 'table') {
                     const { parent, child } = linkElements(elementToLink, element);
-                    updateElement(parent.id, parent.x1, parent.y1, parent.x2, parent.y2, parent.tool, parent.children, parent.parent);
-                    updateElement(child.id, child.x1, child.y1, child.x2, child.y2, child.tool, child.children, child.parent);
+                    // updateElement(parent.id, parent.x1, parent.y1, parent.x2, parent.y2, parent.tool, parent.children, parent.parent);
+                    // updateElement(child.id, child.x1, child.y1, child.x2, child.y2, child.tool, child.children, child.parent);
                     setSelectedElement(null);
                     setElementToLink(null);
                 }
