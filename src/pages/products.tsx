@@ -4,6 +4,7 @@ import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 import Link from 'next/link';
 import db from '../../db';
 import { RowDataPacket } from 'mysql2';
+import router from 'next/router';
 
 // Import necessary components, hooks, and helper functions
 // ...
@@ -64,6 +65,20 @@ interface ManageProductsPageProps {
     categories: Category[];
 }
 
+const handleDelete = async (id: number) => {
+  const response = await fetch(`/api/product/delete-product?id=${id}`, {
+      method: 'DELETE',
+  });
+  
+  if (response.ok) {
+      router.push('/products');
+  }
+};
+
+const handleEditButtonClick = (id: number) => {
+  router.push(`/edit-product/${id}`);
+};
+
 const ManageProductsPage: React.FC<ManageProductsPageProps> = ({ products, categories }) => {
   return (
     <Container>
@@ -101,13 +116,9 @@ const ManageProductsPage: React.FC<ManageProductsPageProps> = ({ products, categ
                 <td>${product.retail_price}</td>
                 <td>{product.quantity}</td>
                 <td>
-                  <Link href={`/edit-product/${product.product_id}`}>
-                    Edit
-                  </Link>
+                  <button onClick={() => handleEditButtonClick(product.product_id)}>Edit</button>
                   {' | '}
-                  <Link href={`/delete-product/${product.product_id}`}>
-                    Delete
-                  </Link>
+                  <button onClick={() => handleDelete(product.product_id)}>Delete</button>
                 </td>
               </tr>
             ))}

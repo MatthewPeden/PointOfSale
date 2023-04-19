@@ -1,6 +1,9 @@
 import { useState, useEffect, FormEvent, SetStateAction } from 'react';
 import router, { useRouter } from 'next/router';
 import styled from 'styled-components';
+import { GetServerSideProps } from 'next';
+import db from '../../db';
+import { RowDataPacket } from 'mysql2';
 
 const Container = styled.div`
   background-color: #ede6f5;
@@ -55,10 +58,7 @@ interface Product {
     quantity: number;
 }
 
-// Input fields for product information
-// Use the same form structure and logic as in add-product.tsx
-const ProductForm = ({ initialProduct }: { initialProduct: Product }) => {
-    // Use initialProduct as the initial state for each field
+const EditProductPage = ({ initialProduct }: { initialProduct: Product }) => {
     const [name, setName] = useState<string>(initialProduct.name);
     const [description, setDescription] = useState<string>(initialProduct.description);
     const [categoryId, setCategoryId] = useState<number>(initialProduct.category_id);
@@ -75,22 +75,23 @@ const ProductForm = ({ initialProduct }: { initialProduct: Product }) => {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-
-        const response = await fetch('/api/product/add-product', {
-            method: 'POST',
+    
+        const response = await fetch(`/api/product/edit-product`, {
+            method: 'PUT',
             headers: {
-            'Content-Type': 'application/json',
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-            name,
-            description,
-            category_id: Number(categoryId),
-            wholesale_price: Number(wholesalePrice),
-            retail_price: Number(retailPrice),
-            quantity: Number(quantity),
+                product_id: initialProduct.product_id,
+                name,
+                description,
+                category_id: Number(categoryId),
+                wholesale_price: Number(wholesalePrice),
+                retail_price: Number(retailPrice),
+                quantity: Number(quantity),
             }),
         });
-
+    
         if (response.ok) {
             router.push('/products');
         }
@@ -102,7 +103,7 @@ const ProductForm = ({ initialProduct }: { initialProduct: Product }) => {
 
     return (
         <Container>
-            <Title>Add New Product</Title>
+            <Title>Edit Product</Title>
             <Form onSubmit={handleSubmit}>
                 <FormField>
                     <Label htmlFor="name">Name:</Label>
@@ -149,7 +150,7 @@ const ProductForm = ({ initialProduct }: { initialProduct: Product }) => {
                         id="wholesale-price"
                         step="0.01"
                         value={wholesalePrice}
-                        onChange={(e: { target: { value: SetStateAction<string>; }; }) => setWholesalePrice(e.target.value)}
+                        onChange={(e: { target: { value: string }; }) => setWholesalePrice(parseInt(e.target.value))}
                     />
                 </FormField>
 
@@ -160,7 +161,7 @@ const ProductForm = ({ initialProduct }: { initialProduct: Product }) => {
                         id="retail-price"
                         step="0.01"
                         value={retailPrice}
-                        onChange={(e: { target: { value: SetStateAction<string>; }; }) => setRetailPrice(e.target.value)}
+                        onChange={(e: { target: { value: string }; }) => setRetailPrice(parseInt(e.target.value))}
                     />
                 </FormField>
 
@@ -170,16 +171,41 @@ const ProductForm = ({ initialProduct }: { initialProduct: Product }) => {
                         type="number"
                         id="quantity"
                         value={quantity}
-                        onChange={(e: { target: { value: SetStateAction<string>; }; }) => setQuantity(e.target.value)}
+                        onChange={(e: { target: { value: string }; }) => setQuantity(parseInt(e.target.value))}
                     />
                 </FormField>
 
                 <FormField>
-                    <button type="submit">Add Product</button>
+                    <button type="submit">Update Product</button>
                 </FormField>
             </Form>
         </Container>
     );
-
-  // Render the form with the input fields and a submit button
 };
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { id } = context.query;
+
+    const connection = await db();
+    const [rows] = await connection.query<RowDataPacket[]>(
+        'SELECT * FROM products WHERE product_id = ?',
+        [id]
+    );
+    await connection.end();
+
+    if (rows.length === 0) {
+        return {
+        notFound: true,
+        };
+    }
+
+    const product: Product = rows[0] as Product;
+
+    return {
+        props: {
+        product,
+        },
+    };
+};
+
+export default EditProductPage;

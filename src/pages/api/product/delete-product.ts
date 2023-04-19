@@ -3,7 +3,7 @@ import db from '../../../../db';
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'DELETE') {
-    const { product_id } = req.body;
+    const { id: product_id } = req.query; // Get the product_id from the query
 
     const connection = await db();
     await connection.query('DELETE FROM products WHERE product_id = ?', [product_id]);
