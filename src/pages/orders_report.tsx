@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import db from '../../db';
 import { withRole, getServerSidePropsForManager } from './api/auth/RBAC.tsx';
 import Layout from "../components/Layout";
+import { NextPageContext } from 'next';
 
 const Container = styled.div`
   background-color: #ede6f5;
@@ -136,7 +137,7 @@ const OrdersReportPage: React.FC<OrdersReportPageProps> = ({ orders }) => {
   );
 };
 
-export const getServerSideProps = async(context) => {
+export const getServerSideProps = async(context: NextPageContext) => {
 const authCheck = await getServerSidePropsForManager(context);
     if ('redirect' in authCheck) {
     return authCheck;
