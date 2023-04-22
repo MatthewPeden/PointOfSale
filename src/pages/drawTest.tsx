@@ -1,8 +1,9 @@
 import React, { useLayoutEffect, useState } from "react";
 import { useEffect } from 'react';
 import styled from "styled-components";
-import { Table, Chair, SceneObject } from "../classes/Table";
+import { Table, Chair, SceneObject, Item } from "../classes/Table";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+import { NumericFormat } from "react-number-format";
 
 declare var ctx: any;
 
@@ -143,6 +144,21 @@ const DrawTest = () => {
             }
         });
     });
+
+    function ItemButton(props: any) {
+        return (
+            <button className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }} onClick={() => addItem(props)}>
+                {props.name} | ${props.price}
+
+            </button>
+        );
+    }
+    
+    function addItem(item: any) {
+        if(selectedChair) {
+            selectedChair.items.push(new Item(item.name, item.price));
+        }
+    }
 
     function selectChair(chair: Chair) {
         chair.selected = true;
@@ -449,28 +465,11 @@ const DrawTest = () => {
                             <hr></hr>
                         </div>
                         <div className="grid-container" style={{ display: "grid", gap: "50px 100px" }}>
-                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
-                                Item
-                            </div>
-                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
-                                Item
-                            </div>
-                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
-                                Item
-                            </div>
-                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
-                                Item
-                            </div>
-                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
-                                Item
-                            </div>
-                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
-                                Item
-                            </div>
-                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
-                                Item
-                            </div>
-
+                            <ItemButton name="test" price="10.12" />
+                            <ItemButton name="test" />
+                            <ItemButton name="test" />
+                            <ItemButton name="test" />
+                            <ItemButton name="test" />
                         </div>
                     </div>
                 }
