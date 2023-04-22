@@ -3,7 +3,7 @@ import { RowDataPacket } from 'mysql2';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import db from '../../db';
-import { withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { withRole, getServerSidePropsForManager } from './api/auth/RBAC.tsx';
 
 const Container = styled.div`
   background-color: #ede6f5;
@@ -131,8 +131,11 @@ const OrdersReportPage: React.FC<OrdersReportPageProps> = ({ orders }) => {
   );
 };
 
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps(context) {
+export const getServerSideProps = async(context) => {
+const authCheck = await getServerSidePropsForManager(context);
+    if ('redirect' in authCheck) {
+    return authCheck;
+  }
     const connection = await db();
     const [rows] = await connection.query(`
       SELECT order_id, total_amount, order_date
@@ -151,10 +154,9 @@ export const getServerSideProps = withPageAuthRequired({
 
     return {
       props: {
+        ...authCheck.props,
         orders: orders,
       },
     };
-  },
-});
-
+  };
 export default OrdersReportPage;
