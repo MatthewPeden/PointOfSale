@@ -28,7 +28,10 @@ const Navbar = () => {
       <NavbarLink href="#">About</NavbarLink>
       <NavbarLink href="/api/auth/login">Log In</NavbarLink>
       <NavbarLink href="/api/auth/logout">Log Out</NavbarLink>
+      <NavbarLink href="/drawTest">Tables and Orders</NavbarLink>
       <NavbarLink href="/transaction">Checkout</NavbarLink>
+      <NavbarLink href="/management">Management</NavbarLink>
+      <NavbarLink href="/reports">Reports</NavbarLink>
       <div style={{ padding: "10px" }}></div>
     </StyledNavbar>
   );

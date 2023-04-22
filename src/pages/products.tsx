@@ -6,9 +6,12 @@ import router from 'next/router';
 import Layout from "../components/Layout";
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
-  margin-top: 50px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -39,7 +42,7 @@ const Table = styled.table`
   }
 `;
 
-const Button = styled.a`
+const Button = styled.button`
   display: block;
   width: 175px;
   height: 35px;
@@ -52,6 +55,9 @@ const Button = styled.a`
   margin-bottom: 5px;
   cursor: pointer;
   text-decoration: none;
+  border: none;
+  background-clip: padding-box;
+  outline: none;
   &:hover {
     background-color: #7d6ba0;
   }

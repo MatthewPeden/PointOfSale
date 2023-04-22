@@ -35,7 +35,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 
     const inventory_item: InventoryItem = rows[0] as InventoryItem;
-    inventory_item.reorder_point = new Date(inventory_item.reorder_point).toISOString();
+
+    const reorderPointDate = new Date(inventory_item.reorder_point);
+    const formattedReorderPoint = reorderPointDate.toISOString().split('T')[0];
+    inventory_item.reorder_point = formattedReorderPoint;
 
     return {
         props: {

@@ -7,9 +7,12 @@ import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 import Layout from "../components/Layout";
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
-  margin-top: 50px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -55,7 +58,7 @@ const InventoryItemReportPage: React.FC<InventoryItemReportPageProps> = ({ inven
   return (
     <Layout>
       <Container>
-        <Title>Inventory Items</Title>
+        <Title>Inventory Items Report</Title>
         <Table>
           <thead>
           <tr>

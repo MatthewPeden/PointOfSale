@@ -8,9 +8,12 @@ import Layout from "../components/Layout";
 import { NextPageContext } from 'next';
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
-  margin-top: 50px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -101,7 +104,7 @@ const OrdersReportPage: React.FC<OrdersReportPageProps> = ({ orders }) => {
   return (
     <Layout>
       <Container>
-        <Title>Orders</Title>
+        <Title>Orders Report</Title>
         <Form>
           <label>
             Start date:
