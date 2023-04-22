@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { withRole, getServerSidePropsForManager } from './api/auth/RBAC.tsx';
 import db from '../../db';
 import { RowDataPacket } from 'mysql2';
 import router from 'next/router';
@@ -143,8 +143,11 @@ const ManageCategoriesPage: React.FC<ManageCategoriesPageProps> = ({ categories 
   );
 };
 
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps(context) {
+export const getServerSideProps = async(context) => {
+  const authCheck = await getServerSidePropsForManager(context);
+  if ('redirect' in authCheck) {
+    return authCheck;
+  }
     const connection = await db();
 
     const [categoryRows] = await connection.query(`
@@ -163,10 +166,10 @@ export const getServerSideProps = withPageAuthRequired({
 
     return {
       props: {
+        ...authCheck.props,
         categories: categories,
       },
     };
-  },
-});
+  };
 
 export default ManageCategoriesPage;

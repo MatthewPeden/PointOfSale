@@ -3,6 +3,7 @@ import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 import db from '../../db';
 import { RowDataPacket } from 'mysql2';
 import router from 'next/router';
+import { withRole, getServerSidePropsForManager } from './api/auth/RBAC.tsx';
 import Layout from "../components/Layout";
 
 const Container = styled.div`
@@ -147,7 +148,7 @@ const ManageProductInventoryItemsPage: React.FC<ManageProductInventoryItemsPageP
           </thead>
           <tbody>
             {product_inventory_items.map((product_inventory_item: ProductInventoryItem) => (
-              <tr key={product_inventory_item.product_inventory_item_id}>
+                           <tr key={product_inventory_item.product_inventory_item_id}>
                 <td>{product_inventory_item.product_inventory_item_id}</td>
                 <td>
                   {
@@ -176,63 +177,69 @@ const ManageProductInventoryItemsPage: React.FC<ManageProductInventoryItemsPageP
   );
 };
 
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps(context) {
-    const connection = await db();
+export const getServerSideProps = async (context) => {
+  const authCheck = await getServerSidePropsForManager(context);
+  if ('redirect' in authCheck) {
+    return authCheck;
+  }
 
-    const [productInventoryItemRows] = await connection.query(`
-      SELECT product_inventory_item_id, product_id, inventory_item_id, quantity
-      FROM product_inventory_items
-    `);
+  const connection = await db();
 
-    const [productRows] = await connection.query(`
-      SELECT product_id, name, description, category_id, price
-      FROM products
-    `);
+  const [productInventoryItemRows] = await connection.query(`
+    SELECT product_inventory_item_id, product_id, inventory_item_id, quantity
+    FROM product_inventory_items
+  `);
 
-    const [inventoryItemRows] = await connection.query(`
-      SELECT inventory_item_id, name, price, reorder_point
-      FROM inventory_items
-    `);
+  // ... the rest of the data fetching code
 
-    await connection.end();
+  const [productRows] = await connection.query(`
+    SELECT product_id, name, description, category_id, price
+    FROM products
+  `);
 
-    const products: Product[] = (productRows as RowDataPacket[]).map((row: any) => {
-      return {
-        product_id: row.product_id,
-        name: row.name,
-        description: row.description,
-        category_id: row.category_id,
-        price: row.price
-      };
-    });
+  const [inventoryItemRows] = await connection.query(`
+    SELECT inventory_item_id, name, price, reorder_point
+    FROM inventory_items
+  `);
 
-    const inventory_items: InventoryItem[] = (inventoryItemRows as RowDataPacket[]).map((row: any) => {
-        return {
-            inventory_item_id: row.inventory_item_id,
-            name: row.name,
-            price: row.price,
-            reorder_point: row.reorder_point.toISOString()
-        };
-    });
+  await connection.end();
 
-    const product_inventory_items: ProductInventoryItem[] = (productInventoryItemRows as RowDataPacket[]).map((row: any) => {
-        return {
-            product_inventory_item_id: row.product_inventory_item_id,
-            product_id: row.product_id,
-            inventory_item_id: row.inventory_item_id,
-            quantity: row.quantity
-        };
-    });
-
+  const products: Product[] = (productRows as RowDataPacket[]).map((row: any) => {
     return {
-      props: {
-        product_inventory_items: product_inventory_items,
-        products: products,
-        inventory_items: inventory_items,
-      },
+      product_id: row.product_id,
+      name: row.name,
+      description: row.description,
+      category_id: row.category_id,
+      price: row.price
     };
-  },
-});
+  });
+
+  const inventory_items: InventoryItem[] = (inventoryItemRows as RowDataPacket[]).map((row: any) => {
+      return {
+          inventory_item_id: row.inventory_item_id,
+          name: row.name,
+          price: row.price,
+          reorder_point: row.reorder_point.toISOString()
+      };
+  });
+
+  const product_inventory_items: ProductInventoryItem[] = (productInventoryItemRows as RowDataPacket[]).map((row: any) => {
+      return {
+          product_inventory_item_id: row.product_inventory_item_id,
+          product_id: row.product_id,
+          inventory_item_id: row.inventory_item_id,
+          quantity: row.quantity
+      };
+  });
+
+  return {
+    props: {
+      ...authCheck.props,
+      product_inventory_items: product_inventory_items,
+      products: products,
+      inventory_items: inventory_items,
+    },
+  };
+};
 
 export default ManageProductInventoryItemsPage;
