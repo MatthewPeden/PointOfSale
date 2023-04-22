@@ -1,0 +1,34 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.heading {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.paymentSuccessful {
+  text-align: center;
+  font-size: 1.25rem;
+  color: green;
+  margin-top: 1rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form label,
+.form input {
+  margin-bottom: 1rem;
+}
+
+.form input {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.5rem;
+}
