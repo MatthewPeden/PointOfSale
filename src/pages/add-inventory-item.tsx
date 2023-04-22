@@ -57,6 +57,7 @@ const AddInventoryItemPage: React.FC = () => {
             body: JSON.stringify({
                 name,
                 price,
+                reorder_point,
             }),
         });
 

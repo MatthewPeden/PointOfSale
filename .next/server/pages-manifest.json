@@ -2,5 +2,10 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/products": "pages/products.js"
+  "/edit-product-inventory-item/[id]": "pages/edit-product-inventory-item/[id].js",
+  "/add-product-inventory-item": "pages/add-product-inventory-item.js",
+  "/product_inventory_items": "pages/product_inventory_items.js",
+  "/api/product_inventory_item/get-products": "pages/api/product_inventory_item/get-products.js",
+  "/api/product_inventory_item/get-inventory-items": "pages/api/product_inventory_item/get-inventory-items.js",
+  "/": "pages/index.js"
 }
