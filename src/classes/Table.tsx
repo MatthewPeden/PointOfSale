@@ -27,6 +27,7 @@ export class Table extends SceneObject {
 
 export class Chair extends SceneObject {
     table: Table | null;
+    selected: boolean = false;
 
     constructor(id: number, x1: number, y1: number, x2:number,  y2: number, table: Table | null = null) {
         super(id, x1, y1, x2, y2, "chair");

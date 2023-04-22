@@ -91,7 +91,8 @@ const DrawTest = () => {
     const [copiedElement, setCopiedElement] = useState(null);
     const [elementToLink, setElementToLink] = useState(null);
     const [offsets, setOffsets] = useState({ x: 0, y: 0 });
-
+    const [chairSelected, setChairSelected] = useState(false);
+    const [selectedChair, setSelectedChair] = useState<Chair | null>(null);
     const [mousePos, setMousePos] = useState({});
 
     useEffect(() => {
@@ -126,8 +127,35 @@ const DrawTest = () => {
             }
         });
 
-        elements.forEach(element => element.tool === 'table' ? ctx.fillRect(element.x1, element.y1, element.x2, element.y2) : ctx.strokeRect(element.x1, element.y1, element.x2, element.y2))
+        //elements.forEach(element => element.tool === 'table' ? ctx.fillRect(element.x1, element.y1, element.x2, element.y2) : ctx.strokeRect(element.x1, element.y1, element.x2, element.y2))
+        elements.forEach(function (element) {
+            if (element instanceof Table) {
+                ctx.fillStyle = "black";
+                ctx.fillRect(element.x1, element.y1, element.x2, element.y2);
+            } else {
+                if (element.selected) {
+                    ctx.fillStyle = "red";
+                    ctx.fillRect(element.x1, element.y1, element.x2, element.y2);
+                } else {
+                    ctx.fillStyle = "black";
+                }
+                ctx.strokeRect(element.x1, element.y1, element.x2, element.y2);
+            }
+        });
     });
+
+    function selectChair(chair: Chair) {
+        chair.selected = true;
+        setChairSelected(true);
+        setSelectedChair(chair);
+    }
+
+    function deselectChair() {
+        if (!selectedChair) return;
+        selectedChair.selected = false;
+        setChairSelected(false);
+        setSelectedChair(null);
+    }
 
     function createElement(element: Table | Chair) {
         const context = ctx;
@@ -158,6 +186,21 @@ const DrawTest = () => {
                 } else {
                     setAction("resize");
                 }
+            }
+        }
+        else if (tool === 'order') {
+            const element = getElementAtPosistion(clientX, clientY, elements);
+            if (element) {
+                if (element instanceof Chair) {
+                    deselectChair();
+                    selectChair(element);
+                }
+                else {
+                    deselectChair();
+                }
+            }
+            else {
+                deselectChair();
             }
         }
         else if (tool === 'copy') {
@@ -264,6 +307,8 @@ const DrawTest = () => {
         } else if (action === 'resize') {
             //const { id, tool, position, ...coordinates } = selectedElement;
             const resizeElement = selectedElement;
+            if (resizeElement === null) return;
+
             const { x1, y1, x2, y2 } = resizedCoordinates(clientX, clientY, resizeElement.position, { x1: resizeElement.x1, y1: resizeElement.y1, x2: resizeElement.x2, y2: resizeElement.y2 });
             resizeElement.x1 = x1;
             resizeElement.y1 = y1;
@@ -276,10 +321,12 @@ const DrawTest = () => {
     const handleMouseUp = (event: any) => {
 
         if (action === 'drawing' || action === 'resize') {
-            const index = selectedElement.id;
-            const { id, tool } = elements[index];
-            const { x1, y1, x2, y2 } = adjustElementCoordinates(elements[index]);
-            updateElement(id, x1, y1, x2, y2, tool);
+            if (selectedElement) {
+                const index = selectedElement.id;
+                const { id, tool } = elements[index];
+                const { x1, y1, x2, y2 } = adjustElementCoordinates(elements[index]);
+                updateElement(id, x1, y1, x2, y2, tool);
+            }
         }
         setAction("none");
         setSelectedElement(null);
@@ -320,79 +367,115 @@ const DrawTest = () => {
                     />
                 </div>
             </Navbar>
-            <div style={{ position: "fixed", marginTop: "60px" }}>
-                <input
-                    type="radio"
-                    id="selection"
-                    checked={tool === 'selection'}
-                    onChange={() => setTool('selection')}
-                />
-                <label htmlFor="selection">Selection</label>
-                <input
-                    type="radio"
-                    id="copy"
-                    checked={tool === 'copy'}
-                    onChange={() => setTool('copy')}
-                />
-                <label htmlFor="copy">Copy</label>
-                <input
-                    type="radio"
-                    id="paste"
-                    checked={tool === 'paste'}
-                    onChange={() => setTool('paste')}
-                />
-                <label htmlFor="paste">Paste</label>
-                <input
-                    type="radio"
-                    id="delete"
-                    checked={tool === 'delete'}
-                    onChange={() => setTool('delete')}
-                />
-                <label htmlFor="delete">Delete</label>
-                <input
-                    type="radio"
-                    id="table"
-                    checked={tool === 'table'}
-                    onChange={() => setTool('table')}
-                />
-                <label htmlFor="table">Table</label>
-                <input
-                    type="radio"
-                    id="chair"
-                    checked={tool === 'chair'}
-                    onChange={() => setTool('chair')}
-                />
-                <label htmlFor="chair">Chair</label>
-                <input
-                    type="radio"
-                    id="link"
-                    checked={tool === 'link'}
-                    onChange={() => setTool('link')}
-                />
-                <label htmlFor="link">Link</label>
-                <input
-                    type="radio"
-                    id="order"
-                    checked={tool === 'order'}
-                    onChange={() => setTool('order')}
-                />
-                <label htmlFor="order">Order</label>
+            <div style={{ position: "relative" }}>
+                <canvas
+                    id="canvas"
+                    width={window.innerWidth}
+                    height={window.innerHeight}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    style={{ position: "absolute" }}
+                >
+                    Canvas
+                </canvas>
+                <div style={{ position: "absolute", marginTop: "60px" }}>
+                    <input
+                        type="radio"
+                        id="selection"
+                        checked={tool === 'selection'}
+                        onChange={() => setTool('selection')}
+                    />
+                    <label htmlFor="selection">Selection</label>
+                    <input
+                        type="radio"
+                        id="copy"
+                        checked={tool === 'copy'}
+                        onChange={() => setTool('copy')}
+                    />
+                    <label htmlFor="copy">Copy</label>
+                    <input
+                        type="radio"
+                        id="paste"
+                        checked={tool === 'paste'}
+                        onChange={() => setTool('paste')}
+                    />
+                    <label htmlFor="paste">Paste</label>
+                    <input
+                        type="radio"
+                        id="delete"
+                        checked={tool === 'delete'}
+                        onChange={() => setTool('delete')}
+                    />
+                    <label htmlFor="delete">Delete</label>
+                    <input
+                        type="radio"
+                        id="table"
+                        checked={tool === 'table'}
+                        onChange={() => setTool('table')}
+                    />
+                    <label htmlFor="table">Table</label>
+                    <input
+                        type="radio"
+                        id="chair"
+                        checked={tool === 'chair'}
+                        onChange={() => setTool('chair')}
+                    />
+                    <label htmlFor="chair">Chair</label>
+                    <input
+                        type="radio"
+                        id="link"
+                        checked={tool === 'link'}
+                        onChange={() => setTool('link')}
+                    />
+                    <label htmlFor="link">Link</label>
+                    <input
+                        type="radio"
+                        id="order"
+                        checked={tool === 'order'}
+                        onChange={() => setTool('order')}
+                    />
+                    <label htmlFor="order">Order</label>
 
-                The mouse is at position{' '}
-                <b>
-                    ({mousePos.x}, {mousePos.y})
-                </b>
+                    The mouse is at position{' '}
+                    <b>
+                        ({mousePos.x}, {mousePos.y})
+                    </b>
+                </div>
+                {chairSelected === true &&
+                    <div style={{ position: "absolute", right: "0", marginTop: "60px", width: window.innerWidth * .25, height: window.innerHeight / 2, border: "2px solid black", overflow: "scroll", gridTemplateColumns: "33% 33% 33%" }}>
+                        <div style={{ margin: "auto", textAlign: "center", position: "sticky", top: "0", backgroundColor: "white" }}>
+                            <h2>Order</h2>
+                            <hr></hr>
+                        </div>
+                        <div className="grid-container" style={{ display: "grid", gap: "50px 100px" }}>
+                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
+                                Item
+                            </div>
+                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
+                                Item
+                            </div>
+                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
+                                Item
+                            </div>
+                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
+                                Item
+                            </div>
+                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
+                                Item
+                            </div>
+                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
+                                Item
+                            </div>
+                            <div className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }}>
+                                Item
+                            </div>
+
+                        </div>
+                    </div>
+                }
+
             </div>
-            <canvas
-                id="canvas"
-                width={window.innerWidth}
-                height={window.innerHeight}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-            >
-                Canvas
-            </canvas>
         </div>
     );
 };
