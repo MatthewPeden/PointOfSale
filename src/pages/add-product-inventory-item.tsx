@@ -88,6 +88,7 @@ interface InventoryItem {
     inventory_item_id: number;
     name: string;
     price: number;
+    quantity: number;
     reorder_point: string;
 }
 
@@ -187,7 +188,7 @@ const AddProductInventoryItemPage: React.FC<AddProductInventoryItemProps> = ({ p
                     <Input
                         type="number"
                         id="quantity"
-                        step="0.01"
+                        min="0"
                         value={quantity}
                         onChange={(e: { target: { value: SetStateAction<string>; }; }) => setQuantity(e.target.value)}
                     />
@@ -214,7 +215,7 @@ export const getServerSideProps = withPageAuthRequired({
       `);
   
       const [inventoryItemRows] = await connection.query(`
-        SELECT inventory_item_id, name, price, reorder_point
+        SELECT inventory_item_id, name, price, quantity, reorder_point
         FROM inventory_items
       `);
   
@@ -235,6 +236,7 @@ export const getServerSideProps = withPageAuthRequired({
               inventory_item_id: row.inventory_item_id,
               name: row.name,
               price: row.price,
+              quantity: row.quantity,
               reorder_point: row.reorder_point.toISOString()
           };
       });

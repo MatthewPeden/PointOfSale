@@ -94,6 +94,7 @@ interface InventoryItem {
     inventory_item_id: number;
     name: string;
     price: number;
+    quantity: number;
     reorder_point: string;
 }
   
@@ -131,6 +132,7 @@ const ManageInventoryItemsPage: React.FC<ManageInventoryItemsPageProps> = ({ inv
               <th>ID</th>
               <th>Name</th>
               <th>Price</th>
+              <th>Quantity</th>
               <th>Reorder Point</th>
               <th>Actions</th>
             </tr>
@@ -141,6 +143,7 @@ const ManageInventoryItemsPage: React.FC<ManageInventoryItemsPageProps> = ({ inv
                 <td>{inventory_item.inventory_item_id}</td>
                 <td>{inventory_item.name}</td>
                 <td>${inventory_item.price}</td>
+                <td>{inventory_item.quantity}</td>
                 <td>{format(new Date(inventory_item.reorder_point), 'MMM d, yyyy')}</td>
                 <td>
                   <ActionButton onClick={() => handleEditButtonClick(inventory_item.inventory_item_id)}>Edit</ActionButton>
@@ -161,7 +164,7 @@ export const getServerSideProps = withPageAuthRequired({
     const connection = await db();
 
     const [inventoryItemRows] = await connection.query(`
-      SELECT inventory_item_id, name, price, reorder_point
+      SELECT *
       FROM inventory_items
     `);
 
@@ -172,6 +175,7 @@ export const getServerSideProps = withPageAuthRequired({
         inventory_item_id: row.inventory_item_id,
         name: row.name,
         price: row.price,
+        quantity: row.quantity,
         reorder_point: row.reorder_point.toISOString()
       };
     });

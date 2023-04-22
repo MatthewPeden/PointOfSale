@@ -47,6 +47,7 @@ interface InventoryItem {
   inventory_item_id: number;
   name: string;
   price: number;
+  quantity: number;
   reorder_point: string;
 }
 
@@ -65,6 +66,7 @@ const InventoryItemReportPage: React.FC<InventoryItemReportPageProps> = ({ inven
               <th>ID</th>
               <th>Name</th>
               <th>Price</th>
+              <th>Quantity</th>
               <th>Reorder Date</th>
           </tr>
           </thead>
@@ -74,6 +76,7 @@ const InventoryItemReportPage: React.FC<InventoryItemReportPageProps> = ({ inven
               <td>{inventory_item.inventory_item_id}</td>
               <td>{inventory_item.name}</td>
               <td>{inventory_item.price}</td>
+              <td>{inventory_item.quantity}</td>
               <td>{format(new Date(inventory_item.reorder_point), 'MMM d, yyyy')}</td>
               </tr>
           ))}
@@ -99,6 +102,7 @@ export const getServerSideProps = withPageAuthRequired({
         inventory_item_id: row.inventory_item_id,
         name: row.name,
         price: row.price,
+        quantity: row.quantity,
         reorder_point: row.reorder_point.toISOString(),
       };
     });

@@ -95,6 +95,7 @@ interface InventoryItem {
     inventory_item_id: number;
     name: string;
     price: number;
+    quantity: number;
     reorder_point: string;
 }
 
@@ -189,7 +190,7 @@ const EditProductInventoryItemPage = ({ initialProductItem }: { initialProductIt
                         <Input
                             type="number"
                             id="quantity"
-                            step="0.01"
+                            min="0"
                             value={quantity}
                             onChange={(e: { target: { value: string }; }) => setQuantity(parseInt(e.target.value))}
                         />
