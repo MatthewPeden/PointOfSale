@@ -25,16 +25,6 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/add-product": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/add-product.js"
-    ],
-    "/edit-product/[id]": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/edit-product/[id].js"
-    ],
     "/products": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",

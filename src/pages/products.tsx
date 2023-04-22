@@ -1,13 +1,8 @@
-import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0';
-import Link from 'next/link';
 import db from '../../db';
 import { RowDataPacket } from 'mysql2';
 import router from 'next/router';
-
-// Import necessary components, hooks, and helper functions
-// ...
 
 const Container = styled.div`
   background-color: #ede6f5;
@@ -42,17 +37,33 @@ const Table = styled.table`
   }
 `;
 
-// Other styled components
-// ...
+const Button = styled.a`
+  display: block;
+  width: 175px;
+  height: 35px;
+  background-color: #5f4b8b;
+  color: white;
+  text-align: center;
+  line-height: 35px;
+  font-size: 16px;
+  border-radius: 30px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
 
 interface Product {
     product_id: number;
     name: string;
     description: string;
     category_id: number;
-    wholesale_price: number;
-    retail_price: number;
-    quantity: number;
+    price: number;
 }
   
 interface Category {
@@ -64,6 +75,10 @@ interface ManageProductsPageProps {
     products: Product[];
     categories: Category[];
 }
+
+const handleAdd = () => {
+  router.push('/add-product');
+};
 
 const handleDelete = async (id: number) => {
   const response = await fetch(`/api/product/delete-product?id=${id}`, {
@@ -84,9 +99,7 @@ const ManageProductsPage: React.FC<ManageProductsPageProps> = ({ products, categ
     <Container>
       <div style={{ marginTop: '60px' }}>
         <Title>Manage Products</Title>
-        <Link href="/add-product">
-          Add New Product
-        </Link>
+        <Button onClick={() => handleAdd()}>Add New Product</Button>
         <Table>
           <thead>
             <tr>
@@ -94,9 +107,7 @@ const ManageProductsPage: React.FC<ManageProductsPageProps> = ({ products, categ
               <th>Name</th>
               <th>Description</th>
               <th>Category</th>
-              <th>Wholesale Price</th>
-              <th>Retail Price</th>
-              <th>Quantity</th>
+              <th>Price</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -112,9 +123,7 @@ const ManageProductsPage: React.FC<ManageProductsPageProps> = ({ products, categ
                       ?.name
                   }
                 </td>
-                <td>${product.wholesale_price}</td>
-                <td>${product.retail_price}</td>
-                <td>{product.quantity}</td>
+                <td>${product.price}</td>
                 <td>
                   <button onClick={() => handleEditButtonClick(product.product_id)}>Edit</button>
                   {' | '}
@@ -134,7 +143,7 @@ export const getServerSideProps = withPageAuthRequired({
     const connection = await db();
 
     const [productRows] = await connection.query(`
-      SELECT product_id, name, description, category_id, wholesale_price, retail_price, quantity
+      SELECT product_id, name, description, category_id, price
       FROM products
     `);
 
@@ -151,9 +160,7 @@ export const getServerSideProps = withPageAuthRequired({
         name: row.name,
         description: row.description,
         category_id: row.category_id,
-        wholesale_price: row.wholesale_price,
-        retail_price: row.retail_price,
-        quantity: row.quantity,
+        price: row.price
       };
     });
 

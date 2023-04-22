@@ -2,11 +2,5 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/add-product": "pages/add-product.js",
-  "/products": "pages/products.js",
-  "/edit-product/[id]": "pages/edit-product/[id].js",
-  "/api/product/get-categories": "pages/api/product/get-categories.js",
-  "/api/product/add-product": "pages/api/product/add-product.js",
-  "/api/product/delete-product": "pages/api/product/delete-product.js",
-  "/api/product/edit-product": "pages/api/product/edit-product.js"
+  "/products": "pages/products.js"
 }

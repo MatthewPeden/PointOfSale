@@ -41,7 +41,8 @@ const Table = styled.table`
 
 interface InventoryItem {
   inventory_item_id: number;
-  quantity: number;
+  name: string;
+  price: number;
   reorder_point: string;
 }
 
@@ -58,15 +59,17 @@ const InventoryItemReportPage: React.FC<InventoryItemReportPageProps> = ({ inven
           <thead>
           <tr>
               <th>ID</th>
-              <th>Quantity</th>
-              <th>Date to Reorder</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Reorder Date</th>
           </tr>
           </thead>
           <tbody>
           {inventory_items.map((inventory_item: InventoryItem) => (
               <tr key={inventory_item.inventory_item_id}>
               <td>{inventory_item.inventory_item_id}</td>
-              <td>{inventory_item.quantity}</td>
+              <td>{inventory_item.name}</td>
+              <td>{inventory_item.price}</td>
               <td>{format(new Date(inventory_item.reorder_point), 'MMM d, yyyy')}</td>
               </tr>
           ))}
@@ -81,7 +84,7 @@ export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(context) {
     const connection = await db();
     const [rows] = await connection.query(`
-      SELECT inventory_item_id, quantity, reorder_point
+      SELECT inventory_item_id, reorder_point
       FROM inventory_items
     `);
 
@@ -90,7 +93,8 @@ export const getServerSideProps = withPageAuthRequired({
     const inventory_items: InventoryItem[] = (rows as RowDataPacket[]).map((row: any) => {
       return {
         inventory_item_id: row.inventory_item_id,
-        quantity: row.quantity,
+        name: row.name,
+        price: row.price,
         reorder_point: new Date(row.reorder_point).toISOString(),
       };
     });

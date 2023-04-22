@@ -8,9 +8,7 @@ interface Product {
     name: string;
     description: string;
     category_id: number;
-    wholesale_price: number;
-    retail_price: number;
-    quantity: number;
+    price: number;
 }
 
 interface Props {
@@ -24,7 +22,6 @@ const EditProduct: NextPage<Props> = ({ product }) => {
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { id } = context.query;
 
-    // Fetch the product information using the provided id
     const connection = await db();
     const [rows] = await connection.query<RowDataPacket[]>(
         'SELECT * FROM products WHERE product_id = ?',
@@ -34,7 +31,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     if (rows.length === 0) {
         return {
-        notFound: true,
+            notFound: true,
         };
     }
 
@@ -42,7 +39,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     return {
         props: {
-        product, // Pass the fetched product information as a prop
+            product,
         },
     };
 };

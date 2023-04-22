@@ -53,18 +53,14 @@ interface Product {
     name: string;
     description: string;
     category_id: number;
-    wholesale_price: number;
-    retail_price: number;
-    quantity: number;
+    price: number;
 }
 
 const EditProductPage = ({ initialProduct }: { initialProduct: Product }) => {
     const [name, setName] = useState<string>(initialProduct.name);
     const [description, setDescription] = useState<string>(initialProduct.description);
     const [categoryId, setCategoryId] = useState<number>(initialProduct.category_id);
-    const [wholesalePrice, setWholesalePrice] = useState<number>(initialProduct.wholesale_price);
-    const [retailPrice, setRetailPrice] = useState<number>(initialProduct.retail_price);
-    const [quantity, setQuantity] = useState<number>(initialProduct.quantity);
+    const [price, setPrice] = useState<number>(initialProduct.price);
     const [categories_list, setCategories] = useState<Category[]>([]);
   
     const fetchCategories = async () => {
@@ -86,9 +82,7 @@ const EditProductPage = ({ initialProduct }: { initialProduct: Product }) => {
                 name,
                 description,
                 category_id: Number(categoryId),
-                wholesale_price: Number(wholesalePrice),
-                retail_price: Number(retailPrice),
-                quantity: Number(quantity),
+                price: Number(price),
             }),
         });
     
@@ -144,34 +138,13 @@ const EditProductPage = ({ initialProduct }: { initialProduct: Product }) => {
                 </FormField>
 
                 <FormField>
-                    <Label htmlFor="wholesale-price">Wholesale Price:</Label>
+                    <Label htmlFor="price">Price:</Label>
                     <Input
                         type="number"
-                        id="wholesale-price"
+                        id="price"
                         step="0.01"
-                        value={wholesalePrice}
-                        onChange={(e: { target: { value: string }; }) => setWholesalePrice(parseInt(e.target.value))}
-                    />
-                </FormField>
-
-                <FormField>
-                    <Label htmlFor="retail-price">Retail Price:</Label>
-                    <Input
-                        type="number"
-                        id="retail-price"
-                        step="0.01"
-                        value={retailPrice}
-                        onChange={(e: { target: { value: string }; }) => setRetailPrice(parseInt(e.target.value))}
-                    />
-                </FormField>
-
-                <FormField>
-                    <Label htmlFor="quantity">Quantity:</Label>
-                    <Input
-                        type="number"
-                        id="quantity"
-                        value={quantity}
-                        onChange={(e: { target: { value: string }; }) => setQuantity(parseInt(e.target.value))}
+                        value={price}
+                        onChange={(e: { target: { value: string }; }) => setPrice(parseInt(e.target.value))}
                     />
                 </FormField>
 

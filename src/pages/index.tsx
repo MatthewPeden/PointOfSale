@@ -58,6 +58,9 @@ export default function Home() {
           <li>
             <Link href="/products">Products</Link>
           </li>
+          <li>
+            <Link href="/inventory_items">Inventory Items</Link>
+          </li>
           <p></p>
           <li>
             <Link href="/roleprotected">NEW ROLE TESTING</Link>

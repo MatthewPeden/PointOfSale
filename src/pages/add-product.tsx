@@ -1,4 +1,3 @@
-// manage-products/add-product.tsx
 import { SetStateAction, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
@@ -57,9 +56,7 @@ const AddProductPage: React.FC<AddProductProps> = ({ categories }) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [categoryId, setCategoryId] = useState<number>(0);
-    const [wholesalePrice, setWholesalePrice] = useState('');
-    const [retailPrice, setRetailPrice] = useState('');
-    const [quantity, setQuantity] = useState('');
+    const [price, setPrice] = useState('');
     const router = useRouter();
     const [categories_list, setCategories] = useState<Category[]>([]);
 
@@ -81,9 +78,7 @@ const AddProductPage: React.FC<AddProductProps> = ({ categories }) => {
             name,
             description,
             category_id: Number(categoryId),
-            wholesale_price: Number(wholesalePrice),
-            retail_price: Number(retailPrice),
-            quantity: Number(quantity),
+            price: Number(price),
             }),
         });
 
@@ -139,34 +134,13 @@ const AddProductPage: React.FC<AddProductProps> = ({ categories }) => {
                 </FormField>
 
                 <FormField>
-                    <Label htmlFor="wholesale-price">Wholesale Price:</Label>
+                    <Label htmlFor="price">Price:</Label>
                     <Input
                         type="number"
-                        id="wholesale-price"
+                        id="price"
                         step="0.01"
-                        value={wholesalePrice}
-                        onChange={(e: { target: { value: SetStateAction<string>; }; }) => setWholesalePrice(e.target.value)}
-                    />
-                </FormField>
-
-                <FormField>
-                    <Label htmlFor="retail-price">Retail Price:</Label>
-                    <Input
-                        type="number"
-                        id="retail-price"
-                        step="0.01"
-                        value={retailPrice}
-                        onChange={(e: { target: { value: SetStateAction<string>; }; }) => setRetailPrice(e.target.value)}
-                    />
-                </FormField>
-
-                <FormField>
-                    <Label htmlFor="quantity">Quantity:</Label>
-                    <Input
-                        type="number"
-                        id="quantity"
-                        value={quantity}
-                        onChange={(e: { target: { value: SetStateAction<string>; }; }) => setQuantity(e.target.value)}
+                        value={price}
+                        onChange={(e: { target: { value: SetStateAction<string>; }; }) => setPrice(e.target.value)}
                     />
                 </FormField>
 
