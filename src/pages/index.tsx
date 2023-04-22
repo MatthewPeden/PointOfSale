@@ -1,4 +1,3 @@
-import Profile from '@/components/Profile';
 import Link from 'next/link';
 import { useUser } from '@auth0/nextjs-auth0/client';
 
@@ -36,7 +35,6 @@ export default function Home() {
     return (
       <div style={styles.container}>
         <h1 style={styles.heading}>Welcome {user.name}!</h1>
-        <Profile></Profile>
         <p style={styles.text}>You are logged in with Auth0.</p>
         <a href="/api/auth/logout">Log out</a>
         <ul>
