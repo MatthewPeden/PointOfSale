@@ -1,10 +1,12 @@
 import React, { FormEvent, SetStateAction, useState } from 'react';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
   background-color: #ede6f5;
   padding: 20px;
+  margin-top: 50px;
 `;
 
 const Title = styled.h1`
@@ -40,6 +42,33 @@ const Input = styled.input`
   width: 100%;
 `;
 
+const Button = styled.a`
+  display: block;
+  width: 175px;
+  height: 35px;
+  background-color: #5f4b8b;
+  color: white;
+  text-align: center;
+  line-height: 35px;
+  font-size: 16px;
+  border-radius: 15px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
+
+const SubmitButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+`;
+
 const AddCategoryPage: React.FC = () => {
   const [name, setName] = useState('');
   const router = useRouter();
@@ -63,7 +92,8 @@ const AddCategoryPage: React.FC = () => {
   };
 
   return (
-      <Container>
+      <Layout>
+        <Container>
           <Title>Add New Category</Title>
           <Form onSubmit={handleSubmit}>
               <FormField>
@@ -77,10 +107,13 @@ const AddCategoryPage: React.FC = () => {
               </FormField>
 
               <FormField>
-                  <button type="submit">Add Category</button>
+                  <SubmitButtonContainer>
+                    <Button type="submit">Add Category</Button>
+                  </SubmitButtonContainer>
               </FormField>
           </Form>
-      </Container>
+        </Container>
+      </Layout>
   );
 };
 

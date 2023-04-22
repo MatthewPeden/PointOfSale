@@ -4,11 +4,12 @@ import styled from 'styled-components';
 import { format } from 'date-fns';
 import db from '../../db';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0';
-
+import Layout from "../components/Layout";
 
 const Container = styled.div`
   background-color: #ede6f5;
   padding: 20px;
+  margin-top: 50px;
 `;
 
 const Title = styled.h1`
@@ -52,8 +53,8 @@ interface InventoryItemReportPageProps {
 
 const InventoryItemReportPage: React.FC<InventoryItemReportPageProps> = ({ inventory_items }) => {
   return (
-    <Container>
-      <div style = {{ marginTop: "60px" }}>
+    <Layout>
+      <Container>
         <Title>Inventory Items</Title>
         <Table>
           <thead>
@@ -75,8 +76,8 @@ const InventoryItemReportPage: React.FC<InventoryItemReportPageProps> = ({ inven
           ))}
           </tbody>
         </Table>
-      </div>
-    </Container>
+      </Container>
+    </Layout>
   );
 };
 
@@ -84,7 +85,7 @@ export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(context) {
     const connection = await db();
     const [rows] = await connection.query(`
-      SELECT inventory_item_id, reorder_point
+      SELECT *
       FROM inventory_items
     `);
 
@@ -95,7 +96,7 @@ export const getServerSideProps = withPageAuthRequired({
         inventory_item_id: row.inventory_item_id,
         name: row.name,
         price: row.price,
-        reorder_point: new Date(row.reorder_point).toISOString(),
+        reorder_point: row.reorder_point.toISOString(),
       };
     });
 

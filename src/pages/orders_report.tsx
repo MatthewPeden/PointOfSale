@@ -4,10 +4,12 @@ import styled from 'styled-components';
 import { format } from 'date-fns';
 import db from '../../db';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
   background-color: #ede6f5;
   padding: 20px;
+  margin-top: 50px;
 `;
 
 const Title = styled.h1`
@@ -65,9 +67,10 @@ const Table = styled.table`
 `;
 
 interface Order {
-  order_id: number;
-  total_amount: number;
-  order_date: string;
+  payment_id: number;
+  payment_method: string;
+  amount: number;
+  transaction_date: string;
 }
 
 interface OrdersReportPageProps {
@@ -90,13 +93,13 @@ const OrdersReportPage: React.FC<OrdersReportPageProps> = ({ orders }) => {
       return true;
     }
   
-    const orderDate = new Date(order.order_date);
+    const orderDate = new Date(order.transaction_date);
     return orderDate >= startDate && orderDate < new Date(endDate.getTime() + 24 * 60 * 60 * 1000);
-  });  
+  });
 
   return (
-    <Container>
-      <div style = {{ marginTop: "60px" }}>
+    <Layout>
+      <Container>
         <Title>Orders</Title>
         <Form>
           <label>
@@ -112,40 +115,54 @@ const OrdersReportPage: React.FC<OrdersReportPageProps> = ({ orders }) => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Total Amount</th>
+              <th>Payment Method</th>
+              <th>Amount</th>
               <th>Date</th>
             </tr>
           </thead>
           <tbody>
             {filteredOrders.map((order: Order) => (
-              <tr key={order.order_id}>
-                <td>{order.order_id}</td>
-                <td>${order.total_amount}</td>
-                <td>{format(new Date(order.order_date), 'MMM d, yyyy')}</td>
+              <tr key={order.payment_id}>
+                <td>{order.payment_id}</td>
+                <td>{order.payment_method}</td>
+                <td>${order.amount}</td>
+                <td>{format(new Date(order.transaction_date), 'MMM d, yyyy')}</td>
               </tr>
             ))}
           </tbody>
         </Table>
-      </div>
-    </Container>
+      </Container>
+    </Layout>
   );
 };
 
-export const getServerSideProps = withPageAuthRequired({
+export const getServerSideProps = withPageAuthRequired( {
   async getServerSideProps(context) {
     const connection = await db();
     const [rows] = await connection.query(`
-      SELECT order_id, total_amount, order_date
-      FROM orders
+      SELECT *
+      FROM payments
       `);
 
     await connection.end();
 
+    const paymentMethodEnum = ['cash', 'card', 'check'];
+
+    const getPaymentMethod = (value: number | string) => {
+      if (typeof value === 'number') {
+        return paymentMethodEnum[value - 1] || 'UNKNOWN';
+      } else if (typeof value === 'string') {
+        return paymentMethodEnum.includes(value) ? value : 'UNKNOWN';
+      }
+      return 'UNKNOWN';
+    };
+
     const orders: Order[] = (rows as RowDataPacket[]).map((row: any) => {
       return {
-        order_id: row.order_id,
-        total_amount: row.total_amount,
-        order_date: new Date(row.order_date).toISOString(),
+        payment_id: row.payment_id,
+        payment_method: getPaymentMethod(row.payment_method),
+        amount: row.amount,
+        transaction_date: row.transaction_date.toISOString(),
       };
     });
 
@@ -158,3 +175,4 @@ export const getServerSideProps = withPageAuthRequired({
 });
 
 export default OrdersReportPage;
+  

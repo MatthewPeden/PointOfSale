@@ -1,10 +1,12 @@
 import React, { FormEvent, SetStateAction, useState } from 'react';
 import { useRouter } from 'next/router';
 import styled from 'styled-components';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
   background-color: #ede6f5;
   padding: 20px;
+  margin-top: 50px;
 `;
 
 const Title = styled.h1`
@@ -40,6 +42,33 @@ const Input = styled.input`
   width: 100%;
 `;
 
+const Button = styled.a`
+  display: block;
+  width: 175px;
+  height: 35px;
+  background-color: #5f4b8b;
+  color: white;
+  text-align: center;
+  line-height: 35px;
+  font-size: 16px;
+  border-radius: 15px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
+
+const SubmitButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+`;
+
 const AddInventoryItemPage: React.FC = () => {
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
@@ -67,45 +96,49 @@ const AddInventoryItemPage: React.FC = () => {
     };
 
     return (
-        <Container>
-            <Title>Add New Inventory Item</Title>
-            <Form onSubmit={handleSubmit}>
-                <FormField>
-                    <Label htmlFor="name">Name:</Label>
-                    <Input
-                        type="text"
-                        id="name"
-                        value={name}
-                        onChange={(e: { target: { value: SetStateAction<string>; }; }) => setName(e.target.value)}
-                    />
-                </FormField>
+        <Layout>
+            <Container>
+                <Title>Add New Inventory Item</Title>
+                <Form onSubmit={handleSubmit}>
+                    <FormField>
+                        <Label htmlFor="name">Name:</Label>
+                        <Input
+                            type="text"
+                            id="name"
+                            value={name}
+                            onChange={(e: { target: { value: SetStateAction<string>; }; }) => setName(e.target.value)}
+                        />
+                    </FormField>
 
-                <FormField>
-                    <Label htmlFor="price">Price:</Label>
-                    <Input
-                        type="number"
-                        id="price"
-                        step="0.01"
-                        value={price}
-                        onChange={(e: { target: { value: SetStateAction<string>; }; }) => setPrice(e.target.value)}
-                    />
-                </FormField>
+                    <FormField>
+                        <Label htmlFor="price">Price:</Label>
+                        <Input
+                            type="number"
+                            id="price"
+                            step="0.01"
+                            value={price}
+                            onChange={(e: { target: { value: SetStateAction<string>; }; }) => setPrice(e.target.value)}
+                        />
+                    </FormField>
 
-                <FormField>
-                    <Label htmlFor="reorder_point">Reorder Point:</Label>
-                    <Input
-                        type="date"
-                        id="reorder_point"
-                        value={reorder_point}
-                        onChange={(e: { target: { value: SetStateAction<string>; }; }) => setReorderPoint(e.target.value.toString())}
-                    />
-                </FormField>
+                    <FormField>
+                        <Label htmlFor="reorder_point">Reorder Point:</Label>
+                        <Input
+                            type="date"
+                            id="reorder_point"
+                            value={reorder_point}
+                            onChange={(e: { target: { value: SetStateAction<string>; }; }) => setReorderPoint(e.target.value.toString())}
+                        />
+                    </FormField>
 
-                <FormField>
-                    <button type="submit">Add Inventory Item</button>
-                </FormField>
-            </Form>
-        </Container>
+                    <FormField>
+                        <SubmitButtonContainer>
+                            <Button type="submit">Add Inventory Item</Button>
+                        </SubmitButtonContainer>
+                    </FormField>
+                </Form>
+            </Container>
+        </Layout>
     );
 };
 

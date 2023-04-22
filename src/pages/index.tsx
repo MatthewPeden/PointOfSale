@@ -44,13 +44,10 @@ export default function Home() {
             <Link href="/drawTest">Draw Test</Link>
           </li>
           <li>
-            <Link href="/payments_report">Payments Report</Link>
+            <Link href="/orders_report">Orders Report</Link>
           </li>
           <li>
             <Link href="/inventory_items_report">Inventory Items Report</Link>
-          </li>
-          <li>
-            <Link href="/orders_report">Orders Report</Link>
           </li>
           <li>
             <Link href="/categories">Categories</Link>
