@@ -34,7 +34,6 @@ const Navbar = () => {
         <Image src="/Zamaco.png" alt="Zamaco Logo" width={60} height={60} />
         </NavbarImageContainer>
       </a>
-      <NavbarLink href="/">Home</NavbarLink>
       <NavbarLink href="/api/auth/login">Log In</NavbarLink>
       <NavbarLink href="/api/auth/logout">Log Out</NavbarLink>
       <NavbarLink href="/drawTest">Tables and Orders</NavbarLink>
