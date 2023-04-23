@@ -86,20 +86,26 @@ const OrdersReportPage: React.FC<OrdersReportPageProps> = ({ orders }) => {
   const [endDate, setEndDate] = useState<Date | null>(null);
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<Date | null>>) => {
-    const date = new Date(event.target.value);
+    const dateTimeString = event.target.value;
+    const date = new Date(dateTimeString);
     if (!isNaN(date.getTime())) {
       setter(date);
     }
   };
 
   const filteredOrders = orders.filter((order: Order) => {
-    if (!startDate || !endDate) {
-      return true;
+    const orderDate = new Date(order.transaction_date);
+  
+    if (startDate && endDate) {
+      return orderDate >= startDate && orderDate <= endDate;
+    } else if (startDate) {
+      return orderDate >= startDate;
+    } else if (endDate) {
+      return orderDate <= endDate;
     }
   
-    const orderDate = new Date(order.transaction_date);
-    return orderDate >= startDate && orderDate < new Date(endDate.getTime() + 24 * 60 * 60 * 1000);
-  });
+    return true;
+  });  
 
   return (
     <Layout>
@@ -107,12 +113,12 @@ const OrdersReportPage: React.FC<OrdersReportPageProps> = ({ orders }) => {
         <Title>Orders Report</Title>
         <Form>
           <label>
-            Start date:
-            <input type="date" onChange={(e) => handleDateChange(e, setStartDate)} />
+            Start Date/Time:
+            <input type="datetime-local" onChange={(e) => handleDateChange(e, setStartDate)} />
           </label>
           <label>
-            End date:
-            <input type="date" onChange={(e) => handleDateChange(e, setEndDate)} />
+            Start Date/Time:
+            <input type="datetime-local" onChange={(e) => handleDateChange(e, setEndDate)} />
           </label>
         </Form>
         <Table>
@@ -130,7 +136,7 @@ const OrdersReportPage: React.FC<OrdersReportPageProps> = ({ orders }) => {
                 <td>{order.payment_id}</td>
                 <td>{order.payment_method}</td>
                 <td>${order.amount}</td>
-                <td>{format(new Date(order.transaction_date), 'MMM d, yyyy')}</td>
+                <td>{format(new Date(order.transaction_date), 'MMM d, yyyy, hh:mm a')}</td>
               </tr>
             ))}
           </tbody>

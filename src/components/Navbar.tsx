@@ -25,7 +25,6 @@ const Navbar = () => {
   return (
     <StyledNavbar>
       <NavbarLink href="/">Home</NavbarLink>
-      <NavbarLink href="#">About</NavbarLink>
       <NavbarLink href="/api/auth/login">Log In</NavbarLink>
       <NavbarLink href="/api/auth/logout">Log Out</NavbarLink>
       <NavbarLink href="/drawTest">Tables and Orders</NavbarLink>
