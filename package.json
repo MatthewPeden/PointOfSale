@@ -22,6 +22,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-number-format": "^5.1.4",
+    "react-tabs": "^6.0.1",
     "serverless-mysql": "^1.5.5",
     "styled-components": "^5.3.9",
     "typescript": "5.0.4"

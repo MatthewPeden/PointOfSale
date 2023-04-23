@@ -18,6 +18,7 @@ export class SceneObject {
 
 export class Table extends SceneObject {
     seats: any[];
+    selected: boolean = false;
 
     constructor(id: number, x1: number, y1: number, x2:number,  y2: number, seats: Chair[] = []) {
         super(id, x1, y1, x2, y2, "table");

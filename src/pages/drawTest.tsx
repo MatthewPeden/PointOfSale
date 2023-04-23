@@ -4,6 +4,8 @@ import styled from "styled-components";
 import { Table, Chair, SceneObject, Item } from "../classes/Table";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { NumericFormat } from "react-number-format";
+import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
+import { ItemTab } from "@/components/ItemTab";
 
 declare var ctx: any;
 
@@ -89,11 +91,13 @@ const DrawTest = () => {
     const [action, setAction] = useState("none");
     const [tool, setTool] = useState("table");
     const [selectedElement, setSelectedElement] = useState<SceneObject | null>(null);
-    const [copiedElement, setCopiedElement] = useState(null);
+    const [copiedElement, setCopiedElement] = useState<SceneObject | null>(null);
     const [elementToLink, setElementToLink] = useState(null);
     const [offsets, setOffsets] = useState({ x: 0, y: 0 });
     const [chairSelected, setChairSelected] = useState(false);
     const [selectedChair, setSelectedChair] = useState<Chair | null>(null);
+    const [tableSelected, setTableSelected] = useState(false);
+    const [selectedTable, setSelectedTable] = useState<Table | null>(null);
     const [mousePos, setMousePos] = useState({});
 
     useEffect(() => {
@@ -131,7 +135,11 @@ const DrawTest = () => {
         //elements.forEach(element => element.tool === 'table' ? ctx.fillRect(element.x1, element.y1, element.x2, element.y2) : ctx.strokeRect(element.x1, element.y1, element.x2, element.y2))
         elements.forEach(function (element) {
             if (element instanceof Table) {
-                ctx.fillStyle = "black";
+                if (element.selected) {
+                    ctx.fillStyle = "red";
+                } else {
+                    ctx.fillStyle = "black";
+                }
                 ctx.fillRect(element.x1, element.y1, element.x2, element.y2);
             } else {
                 if (element.selected) {
@@ -153,11 +161,32 @@ const DrawTest = () => {
             </button>
         );
     }
-    
+
+    function TabOption(props: any) {
+        return (
+            <div style={{ margin: "auto", textAlign: "center", position: "sticky", top: "0", backgroundColor: "white", border: "2px solid black", alignItems: "center", display: "flex" }}>
+                <h3>{props.name}</h3>
+            </div>
+        );
+    }
+
     function addItem(item: any) {
-        if(selectedChair) {
+        if (selectedChair) {
             selectedChair.items.push(new Item(item.name, item.price));
         }
+    }
+
+    function selectTable(table: Table) {
+        table.selected = true;
+        setTableSelected(true);
+        setSelectedTable(table);
+    }
+
+    function deselectTable() {
+        if (!selectedTable) return;
+        selectedTable.selected = false;
+        setTableSelected(false);
+        setSelectedTable(null);
     }
 
     function selectChair(chair: Chair) {
@@ -209,14 +238,25 @@ const DrawTest = () => {
             if (element) {
                 if (element instanceof Chair) {
                     deselectChair();
+                    deselectTable();
                     selectChair(element);
+                }
+                else if (element instanceof Table) {
+                    if (selectedChair) {
+                        deselectChair();
+                    }
+                    deselectTable();
+                    selectTable(element);
+
                 }
                 else {
                     deselectChair();
+                    deselectTable();
                 }
             }
             else {
                 deselectChair();
+                deselectTable();
             }
         }
         else if (tool === 'copy') {
@@ -228,11 +268,18 @@ const DrawTest = () => {
         }
         else if (tool === 'paste') {
             const element = copiedElement;
-            if (element) {
+            if(!element) return;
+            if (element instanceof Table) {
                 const id = elements.length;
-                const newElement = createElement(id, clientX - (element.x2 / 2), clientY - (element.y2 / 2), element.x2, element.y2, element.tool);
-                setElements(prevState => [...prevState, newElement]);
-                setSelectedElement(newElement);
+                const newElement = createElement(new Table(id, clientX - (element.x2 / 2), clientY - (element.y2 / 2), element.x2, element.y2));
+                setElements(prevState => [...prevState, newElement.element]);
+                setSelectedElement(newElement.element);
+            }
+            else if (element instanceof Chair) {
+                const id = elements.length;
+                const newElement = createElement(new Chair(id, clientX - (element.x2 / 2), clientY - (element.y2 / 2), element.x2, element.y2));
+                setElements(prevState => [...prevState, newElement.element]);
+                setSelectedElement(newElement.element);
             }
         }
         else if (tool === 'delete') {
@@ -341,7 +388,7 @@ const DrawTest = () => {
                 const index = selectedElement.id;
                 const { id, tool } = elements[index];
                 const { x1, y1, x2, y2 } = adjustElementCoordinates(elements[index]);
-                updateElement(id, x1, y1, x2, y2, tool);
+                updateElement(selectedElement);
             }
         }
         setAction("none");
@@ -458,19 +505,42 @@ const DrawTest = () => {
                         ({mousePos.x}, {mousePos.y})
                     </b>
                 </div>
-                {chairSelected === true &&
+                {(chairSelected === true || tableSelected === true) &&
                     <div style={{ position: "absolute", right: "0", marginTop: "60px", width: window.innerWidth * .25, height: window.innerHeight / 2, border: "2px solid black", overflow: "scroll", gridTemplateColumns: "33% 33% 33%" }}>
-                        <div style={{ margin: "auto", textAlign: "center", position: "sticky", top: "0", backgroundColor: "white" }}>
-                            <h2>Order</h2>
-                            <hr></hr>
-                        </div>
-                        <div className="grid-container" style={{ display: "grid", gap: "50px 100px" }}>
-                            <ItemButton name="test" price="10.12" />
-                            <ItemButton name="test" />
-                            <ItemButton name="test" />
-                            <ItemButton name="test" />
-                            <ItemButton name="test" />
-                        </div>
+                        <Tabs>
+                            <TabList style={{ listStyle: "none", padding: "0", display: "flex", margin: "auto", width: "100%", alignItems: "stretch" }}>
+                                <Tab style={{ marginTop: "0" }}>
+                                    <TabOption name="Order" />
+                                </Tab>
+                                <Tab>
+                                    <TabOption name="Items" />
+                                </Tab>
+                                <Tab>
+                                    <TabOption name="Transfer" />
+                                </Tab>
+                            </TabList>
+                            <TabPanel>
+                                <div className="grid-container" style={{ display: "grid", gap: "50px 100px" }}>
+                                    <ItemButton name="test" price="10.12" />
+                                    <ItemButton name="test" />
+                                    <ItemButton name="test" />
+                                    <ItemButton name="test" />
+                                    <ItemButton name="test" />
+                                </div>
+                            </TabPanel>
+                            <TabPanel>
+                                {(chairSelected === true) &&
+                                    <ItemTab chairSelected={chairSelected} chair={selectedChair}/>
+                                }
+                                {(tableSelected === true) &&
+                                    <ItemTab tableSelected={tableSelected} table={selectedTable} />
+                                }
+
+                            </TabPanel>
+                            <TabPanel>
+                                TODO
+                            </TabPanel>
+                        </Tabs>
                     </div>
                 }
 
