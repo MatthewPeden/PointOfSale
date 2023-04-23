@@ -64,7 +64,7 @@ const ReportsPage: React.FC = () => {
         <Title>Reports</Title>
             <ButtonContainer>
                 <Button onClick={() => handleInventoryItems()}>Inventory Items</Button>
-                <Button onClick={() => handleOrders()}>Orders</Button>
+                <Button onClick={() => handleOrders()}>Transactions</Button>
             </ButtonContainer>
       </Container>
     </Layout>
