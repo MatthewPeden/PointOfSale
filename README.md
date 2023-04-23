@@ -1,4 +1,4 @@
-Here are the installation instructions for a prepacked Point of Sale (POS) system created with Next.js that relies on a MySQL database. This guide assumes that you have already set up your MySQL database and focuses on the configuration required to connect Next.js to MySQL.
+Here are the installation instructions for the Zamaco Point of Sale (POS) system created with Next.js. This guide assumes that you have already set up your MySQL database and focuses on the configuration required to connect Next.js to MySQL.
 
 Clone the repository or download the source code of the POS system:
 
