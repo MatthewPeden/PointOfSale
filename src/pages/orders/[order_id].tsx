@@ -2,10 +2,13 @@ import { useState } from "react";
 import executeQuery from "../../../lib/db";
 import { useRouter } from "next/router";
 import styled from "styled-components";
+import Layout from "../../components/Layout";
+
 
 const Container = styled.div`
   background-color: #ede6f5;
   padding: 20px;
+  padding-top: 40px;
   min-height: calc(100vh - 60px);
 `;
 
@@ -89,40 +92,43 @@ export default function OrderPage({ order, error }) {
   const [payment, setPayment] = useState(null);
   const [change, setChange] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const cash_given = e.target.cash.value;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const cash_given = e.target.cash.value;
 
-    if (!cash_given || isNaN(cash_given) || cash_given < order.total_amount) {
-      alert("Please enter a valid amount of cash");
-      return;
-    }
+  if (!cash_given || isNaN(cash_given) || cash_given < order.total_amount) {
+    alert("Please enter a valid amount of cash");
+    return;
+  }
 
-    const response = await fetch("/api/payments", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        order_id: order.order_id,
-        total_amount: order.total_amount,
-        cash_given: cash_given,
-      }),
-    });
+  const response = await fetch("/api/payments", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      order_id: order.order_id,
+      total_amount: order.total_amount,
+      cash_given: cash_given,
+    }),
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    if (response.status === 200) {
-      alert(`Payment successful. Change: ${data.change}`);
-      setPayment(data.payment);
-      setChange(data.change);
-    } else {
-      alert(`Payment failed. Error: ${data.message}`);
-    }
-  };
+  if (response.status === 200) {
+    const roundedChange = parseFloat(data.change).toFixed(2);
+    alert(`Payment successful. Change: ${roundedChange}`);
+    setPayment(data.payment);
+    setChange(roundedChange);
+  } else {
+    alert(`Payment failed. Error: ${data.message}`);
+  }
+};
+
 
      return (
     <Container>
+    <Layout>
       {order ? (
         <>
           <Heading>Order #{order.order_id}</Heading>
@@ -135,7 +141,7 @@ export default function OrderPage({ order, error }) {
           ) : (
             <Form onSubmit={handleSubmit}>
               <Label htmlFor="cash">Cash given:</Label>
-              <Input type="number" id="cash" name="cash" />
+              <Input type="number" id="cash" name="cash" step="0.01" />
               <Button type="submit">Submit</Button>
             </Form>
           )}
@@ -143,6 +149,7 @@ export default function OrderPage({ order, error }) {
       ) : (
         <Text>{error}</Text>
       )}
+      </Layout>
     </Container>
   );
 }
