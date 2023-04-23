@@ -1,5 +1,6 @@
 // components/Navbar.tsx
 import styled from "styled-components";
+import Image from "next/image";
 
 const StyledNavbar = styled.nav`
   position: fixed;
@@ -21,9 +22,18 @@ const NavbarLink = styled.a`
   padding: 10px;
 `;
 
+const NavbarImageContainer = styled.div`
+  margin-left: 10px;
+`;
+
 const Navbar = () => {
   return (
     <StyledNavbar>
+      <a href="/">
+        <NavbarImageContainer>
+        <Image src="/Zamaco.png" alt="Zamaco Logo" width={40} height={40} />
+        </NavbarImageContainer>
+      </a>
       <NavbarLink href="/">Home</NavbarLink>
       <NavbarLink href="/api/auth/login">Log In</NavbarLink>
       <NavbarLink href="/api/auth/logout">Log Out</NavbarLink>
@@ -37,4 +47,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
