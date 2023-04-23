@@ -3,7 +3,7 @@ import { RowDataPacket } from 'mysql2';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import db from '../../db';
-import { withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { withRole, getServerSidePropsForManager } from './api/auth/RBAC.tsx';
 import Layout from "../components/Layout";
 
 const Container = styled.div`
@@ -87,8 +87,11 @@ const InventoryItemReportPage: React.FC<InventoryItemReportPageProps> = ({ inven
   );
 };
 
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps(context) {
+export const getServerSideProps = async(context: NextPageContext) => {
+const authCheck = await getServerSidePropsForManager(context);
+    if ('redirect' in authCheck) {
+      return authCheck;
+  }
     const connection = await db();
     const [rows] = await connection.query(`
       SELECT *
@@ -109,11 +112,11 @@ export const getServerSideProps = withPageAuthRequired({
 
     return {
       props: {
+        ...authCheck.props,
         inventory_items: inventory_items,
       },
     };
-  },
-});
+  };
 
 
 

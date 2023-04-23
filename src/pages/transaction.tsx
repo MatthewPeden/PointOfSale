@@ -49,10 +49,27 @@ const Select = styled.select`
 
 // Create a styled button component
 const Button = styled.button`
-  width: 150px;
-  height: 50px;
-  background-color: blue;
+  display: block;
+  width: 275px;
+  height: 60px;
+  background-color: #5f4b8b;
   color: white;
+  text-align: center;
+  line-height: 35px;
+  font-size: 16px;
+  border-radius: 15px;
+  margin: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  background-clip: padding-box;
+  outline: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
 `;
 export const getServerSideProps = withPageAuthRequired();
 export default function OrdersPage() {
