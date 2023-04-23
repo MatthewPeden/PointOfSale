@@ -76,6 +76,7 @@ const SubmitButtonContainer = styled.div`
 const AddInventoryItemPage: React.FC = () => {
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
+    const [quantity, setQuantity] = useState('');
     const [reorder_point, setReorderPoint] = useState('');
     const router = useRouter();
 
@@ -90,6 +91,7 @@ const AddInventoryItemPage: React.FC = () => {
             body: JSON.stringify({
                 name,
                 price,
+                quantity,
                 reorder_point,
             }),
         });
@@ -120,8 +122,20 @@ const AddInventoryItemPage: React.FC = () => {
                             type="number"
                             id="price"
                             step="0.01"
+                            min="0"
                             value={price}
                             onChange={(e: { target: { value: SetStateAction<string>; }; }) => setPrice(e.target.value)}
+                        />
+                    </FormField>
+
+                    <FormField>
+                        <Label htmlFor="quantity">Quantity:</Label>
+                        <Input
+                            type="number"
+                            id="quantity"
+                            min="0"
+                            value={quantity}
+                            onChange={(e: { target: { value: SetStateAction<string>; }; }) => setQuantity(e.target.value)}
                         />
                     </FormField>
 

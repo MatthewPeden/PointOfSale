@@ -109,6 +109,7 @@ interface InventoryItem {
     inventory_item_id: number;
     name: string;
     price: number;
+    quantity: number;
     reorder_point: string;
 }
   
@@ -204,7 +205,7 @@ export const getServerSideProps = async (context) => {
   `);
 
   const [inventoryItemRows] = await connection.query(`
-    SELECT inventory_item_id, name, price, reorder_point
+    SELECT inventory_item_id, name, price, quantity, reorder_point
     FROM inventory_items
   `);
 
@@ -225,6 +226,7 @@ export const getServerSideProps = async (context) => {
           inventory_item_id: row.inventory_item_id,
           name: row.name,
           price: row.price,
+          quantity: row.quantity,
           reorder_point: row.reorder_point.toISOString()
       };
   });

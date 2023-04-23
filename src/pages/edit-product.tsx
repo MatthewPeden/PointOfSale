@@ -177,6 +177,7 @@ const EditProductPage = ({ initialProduct }: { initialProduct: Product }) => {
                             type="number"
                             id="price"
                             step="0.01"
+                            min="0"
                             value={price}
                             onChange={(e: { target: { value: string }; }) => setPrice(parseInt(e.target.value))}
                         />

@@ -173,6 +173,7 @@ const AddProductPage: React.FC<AddProductProps> = ({ categories }) => {
                         type="number"
                         id="price"
                         step="0.01"
+                        min="0"
                         value={price}
                         onChange={(e: { target: { value: SetStateAction<string>; }; }) => setPrice(e.target.value)}
                     />

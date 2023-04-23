@@ -81,12 +81,14 @@ interface InventoryItem {
   inventory_item_id: number;
   name: string;
   price: number;
+  quantity: number;
   reorder_point: string;
 }
 
 const EditInventoryItemPage = ({ initialItem }: { initialItem: InventoryItem }) => {
   const [name, setName] = useState<string>(initialItem.name);
   const [price, setPrice] = useState<number>(initialItem.price);
+  const [quantity, setQuantity] = useState<number>(initialItem.quantity);
   const [reorderPoint, setReorderPoint] = useState<string>(initialItem.reorder_point);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -101,6 +103,7 @@ const EditInventoryItemPage = ({ initialItem }: { initialItem: InventoryItem }) 
         inventory_item_id: initialItem.inventory_item_id,
         name,
         price: Number(price),
+        quantity: Number(quantity),
         reorder_point: reorderPoint,
       }),
     });
@@ -131,8 +134,20 @@ const EditInventoryItemPage = ({ initialItem }: { initialItem: InventoryItem }) 
               type="number"
               id="price"
               step="0.01"
+              min="0"
               value={price}
               onChange={(e: { target: { value: string }; }) => setPrice(parseFloat(e.target.value))}
+            />
+          </FormField>
+
+          <FormField>
+            <Label htmlFor="quantity">Quantity:</Label>
+            <Input
+              type="number"
+              id="quantity"
+              min="0"
+              value={quantity}
+              onChange={(e: { target: { value: string }; }) => setQuantity(parseFloat(e.target.value))}
             />
           </FormField>
 
