@@ -31,7 +31,7 @@ const Navbar = () => {
     <StyledNavbar>
       <a href="/">
         <NavbarImageContainer>
-        <Image src="/Zamaco.png" alt="Zamaco Logo" width={40} height={40} />
+        <Image src="/Zamaco.png" alt="Zamaco Logo" width={60} height={60} />
         </NavbarImageContainer>
       </a>
       <NavbarLink href="/">Home</NavbarLink>
