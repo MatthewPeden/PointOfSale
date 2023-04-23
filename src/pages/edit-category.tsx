@@ -4,10 +4,13 @@ import styled from 'styled-components';
 import { GetServerSideProps } from 'next';
 import db from '../../db';
 import { RowDataPacket } from 'mysql2';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -43,6 +46,36 @@ const Input = styled.input`
   width: 100%;
 `;
 
+const Button = styled.button`
+  display: block;
+  width: 175px;
+  height: 35px;
+  background-color: #5f4b8b;
+  color: white;
+  text-align: center;
+  line-height: 35px;
+  font-size: 16px;
+  border-radius: 15px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  background-clip: padding-box;
+  outline: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
+
+const SubmitButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+`;
+
 interface Category {
   category_id: number;
   name: string;
@@ -71,26 +104,30 @@ const EditCategoryPage = ({ initialCategory }: { initialCategory: Category }) =>
   };
 
   return (
-    <Container>
-      <Title>Edit Category</Title>
-      <Form onSubmit={handleSubmit}>
-        <FormField>
-          <Label htmlFor="name">Name:</Label>
-          <Input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e: { target: { value: SetStateAction<string>; }; }) =>
-              setName(e.target.value)
-            }
-          />
-        </FormField>
+    <Layout>
+      <Container>
+        <Title>Edit Category</Title>
+        <Form onSubmit={handleSubmit}>
+          <FormField>
+            <Label htmlFor="name">Name:</Label>
+            <Input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e: { target: { value: SetStateAction<string>; }; }) =>
+                setName(e.target.value)
+              }
+            />
+          </FormField>
 
-        <FormField>
-          <button type="submit">Update Category</button>
-        </FormField>
-      </Form>
-    </Container>
+          <FormField>
+            <SubmitButtonContainer>
+              <Button type="submit">Update Category</Button>
+            </SubmitButtonContainer>
+          </FormField>
+        </Form>
+      </Container>
+    </Layout>
   );
 };
 

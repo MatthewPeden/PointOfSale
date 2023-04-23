@@ -3,10 +3,15 @@ import { withRole, getServerSidePropsForManager } from './api/auth/RBAC.tsx';
 import db from '../../db';
 import { RowDataPacket } from 'mysql2';
 import router from 'next/router';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -37,7 +42,7 @@ const Table = styled.table`
   }
 `;
 
-const Button = styled.a`
+const Button = styled.button`
   display: block;
   width: 175px;
   height: 35px;
@@ -46,8 +51,34 @@ const Button = styled.a`
   text-align: center;
   line-height: 35px;
   font-size: 16px;
-  border-radius: 30px;
+  border-radius: 15px;
   margin-bottom: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  background-clip: padding-box;
+  outline: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
+
+const ActionButton = styled.a`
+  width: 50px;
+  height: 25px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-left: 12px;
+  padding-right: 12px;
+  background-color: #5f4b8b;
+  color: white;
+  text-align: center;
+  line-height: 26px;
+  font-size: 14px;
+  border-radius: 12px;
   cursor: pointer;
   text-decoration: none;
   &:hover {
@@ -87,8 +118,8 @@ const handleEditButtonClick = (id: number) => {
 
 const ManageCategoriesPage: React.FC<ManageCategoriesPageProps> = ({ categories }) => {
   return (
-    <Container>
-      <div style={{ marginTop: '60px' }}>
+    <Layout>
+      <Container>
         <Title>Manage Categories</Title>
         <Button onClick={() => handleAdd()}>Add New Category</Button>
         <Table>
@@ -105,16 +136,16 @@ const ManageCategoriesPage: React.FC<ManageCategoriesPageProps> = ({ categories 
                 <td>{category.category_id}</td>
                 <td>{category.name}</td>
                 <td>
-                  <button onClick={() => handleEditButtonClick(category.category_id)}>Edit</button>
+                  <ActionButton onClick={() => handleEditButtonClick(category.category_id)}>Edit</ActionButton>
                   {' | '}
-                  <button onClick={() => handleDelete(category.category_id)}>Delete</button>
+                  <ActionButton onClick={() => handleDelete(category.category_id)}>Delete</ActionButton>
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
-      </div>
-    </Container>
+      </Container>
+    </Layout>
   );
 };
 

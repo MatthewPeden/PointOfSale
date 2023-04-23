@@ -4,10 +4,16 @@ import styled from 'styled-components';
 import { format } from 'date-fns';
 import db from '../../db';
 import { withRole, getServerSidePropsForManager } from './api/auth/RBAC.tsx';
+import Layout from "../components/Layout";
+import { NextPageContext } from 'next';
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -65,9 +71,10 @@ const Table = styled.table`
 `;
 
 interface Order {
-  order_id: number;
-  total_amount: number;
-  order_date: string;
+  payment_id: number;
+  payment_method: string;
+  amount: number;
+  transaction_date: string;
 }
 
 interface OrdersReportPageProps {
@@ -79,76 +86,96 @@ const OrdersReportPage: React.FC<OrdersReportPageProps> = ({ orders }) => {
   const [endDate, setEndDate] = useState<Date | null>(null);
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<Date | null>>) => {
-    const date = new Date(event.target.value);
+    const dateTimeString = event.target.value;
+    const date = new Date(dateTimeString);
     if (!isNaN(date.getTime())) {
       setter(date);
     }
   };
 
   const filteredOrders = orders.filter((order: Order) => {
-    if (!startDate || !endDate) {
-      return true;
+    const orderDate = new Date(order.transaction_date);
+  
+    if (startDate && endDate) {
+      return orderDate >= startDate && orderDate <= endDate;
+    } else if (startDate) {
+      return orderDate >= startDate;
+    } else if (endDate) {
+      return orderDate <= endDate;
     }
   
-    const orderDate = new Date(order.order_date);
-    return orderDate >= startDate && orderDate < new Date(endDate.getTime() + 24 * 60 * 60 * 1000);
+    return true;
   });  
 
   return (
-    <Container>
-      <div style = {{ marginTop: "60px" }}>
-        <Title>Orders</Title>
+    <Layout>
+      <Container>
+        <Title>Orders Report</Title>
         <Form>
           <label>
-            Start date:
-            <input type="date" onChange={(e) => handleDateChange(e, setStartDate)} />
+            Start Date/Time:
+            <input type="datetime-local" onChange={(e) => handleDateChange(e, setStartDate)} />
           </label>
           <label>
-            End date:
-            <input type="date" onChange={(e) => handleDateChange(e, setEndDate)} />
+            Start Date/Time:
+            <input type="datetime-local" onChange={(e) => handleDateChange(e, setEndDate)} />
           </label>
         </Form>
         <Table>
           <thead>
             <tr>
               <th>ID</th>
-              <th>Total Amount</th>
+              <th>Payment Method</th>
+              <th>Amount</th>
               <th>Date</th>
             </tr>
           </thead>
           <tbody>
             {filteredOrders.map((order: Order) => (
-              <tr key={order.order_id}>
-                <td>{order.order_id}</td>
-                <td>${order.total_amount}</td>
-                <td>{format(new Date(order.order_date), 'MMM d, yyyy')}</td>
+              <tr key={order.payment_id}>
+                <td>{order.payment_id}</td>
+                <td>{order.payment_method}</td>
+                <td>${order.amount}</td>
+                <td>{format(new Date(order.transaction_date), 'MMM d, yyyy, hh:mm a')}</td>
               </tr>
             ))}
           </tbody>
         </Table>
-      </div>
-    </Container>
+      </Container>
+    </Layout>
   );
 };
 
-export const getServerSideProps = async(context) => {
+export const getServerSideProps = async(context: NextPageContext) => {
 const authCheck = await getServerSidePropsForManager(context);
     if ('redirect' in authCheck) {
     return authCheck;
   }
     const connection = await db();
     const [rows] = await connection.query(`
-      SELECT order_id, total_amount, order_date
-      FROM orders
+      SELECT *
+      FROM payments
       `);
 
     await connection.end();
 
+    const paymentMethodEnum = ['cash', 'card', 'check'];
+
+    const getPaymentMethod = (value: number | string) => {
+      if (typeof value === 'number') {
+        return paymentMethodEnum[value - 1] || 'UNKNOWN';
+      } else if (typeof value === 'string') {
+        return paymentMethodEnum.includes(value) ? value : 'UNKNOWN';
+      }
+      return 'UNKNOWN';
+    };
+
     const orders: Order[] = (rows as RowDataPacket[]).map((row: any) => {
       return {
-        order_id: row.order_id,
-        total_amount: row.total_amount,
-        order_date: new Date(row.order_date).toISOString(),
+        payment_id: row.payment_id,
+        payment_method: getPaymentMethod(row.payment_method),
+        amount: row.amount,
+        transaction_date: row.transaction_date.toISOString(),
       };
     });
 
@@ -160,3 +187,4 @@ const authCheck = await getServerSidePropsForManager(context);
     };
   };
 export default OrdersReportPage;
+  

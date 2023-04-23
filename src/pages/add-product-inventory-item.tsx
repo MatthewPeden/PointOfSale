@@ -4,10 +4,13 @@ import styled from 'styled-components';
 import db from '../../db';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 import { RowDataPacket } from 'mysql2';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -43,6 +46,36 @@ const Input = styled.input`
   width: 100%;
 `;
 
+const Button = styled.button`
+  display: block;
+  width: 175px;
+  height: 35px;
+  background-color: #5f4b8b;
+  color: white;
+  text-align: center;
+  line-height: 35px;
+  font-size: 16px;
+  border-radius: 15px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  background-clip: padding-box;
+  outline: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
+
+const SubmitButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+`;
+
 interface Product {
     product_id: number;
     name: string;
@@ -55,6 +88,7 @@ interface InventoryItem {
     inventory_item_id: number;
     name: string;
     price: number;
+    quantity: number;
     reorder_point: string;
 }
 
@@ -109,7 +143,8 @@ const AddProductInventoryItemPage: React.FC<AddProductInventoryItemProps> = ({ p
     }, []);
 
     return (
-        <Container>
+        <Layout>
+          <Container>
             <Title>Add Product Item</Title>
             <Form onSubmit={handleSubmit}>
                 <FormField>
@@ -153,17 +188,20 @@ const AddProductInventoryItemPage: React.FC<AddProductInventoryItemProps> = ({ p
                     <Input
                         type="number"
                         id="quantity"
-                        step="0.01"
+                        min="0"
                         value={quantity}
                         onChange={(e: { target: { value: SetStateAction<string>; }; }) => setQuantity(e.target.value)}
                     />
                 </FormField>
 
                 <FormField>
-                    <button type="submit">Add Product Item</button>
+                  <SubmitButtonContainer>
+                    <Button type="submit">Add Product Item</Button>
+                  </SubmitButtonContainer>
                 </FormField>
             </Form>
-        </Container>
+          </Container>
+        </Layout>
     );
 };
 
@@ -177,7 +215,7 @@ export const getServerSideProps = withPageAuthRequired({
       `);
   
       const [inventoryItemRows] = await connection.query(`
-        SELECT inventory_item_id, name, price, reorder_point
+        SELECT inventory_item_id, name, price, quantity, reorder_point
         FROM inventory_items
       `);
   
@@ -198,6 +236,7 @@ export const getServerSideProps = withPageAuthRequired({
               inventory_item_id: row.inventory_item_id,
               name: row.name,
               price: row.price,
+              quantity: row.quantity,
               reorder_point: row.reorder_point.toISOString()
           };
       });

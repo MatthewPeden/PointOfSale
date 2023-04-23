@@ -4,10 +4,13 @@ import styled from 'styled-components';
 import { GetServerSideProps } from 'next';
 import db from '../../db';
 import { RowDataPacket } from 'mysql2';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -43,6 +46,36 @@ const Input = styled.input`
   width: 100%;
 `;
 
+const Button = styled.button`
+  display: block;
+  width: 175px;
+  height: 35px;
+  background-color: #5f4b8b;
+  color: white;
+  text-align: center;
+  line-height: 35px;
+  font-size: 16px;
+  border-radius: 15px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  background-clip: padding-box;
+  outline: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
+
+const SubmitButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+`;
+
 interface ProductInventoryItem {
     product_inventory_item_id: number;
     product_id: number;
@@ -62,6 +95,7 @@ interface InventoryItem {
     inventory_item_id: number;
     name: string;
     price: number;
+    quantity: number;
     reorder_point: string;
 }
 
@@ -111,61 +145,65 @@ const EditProductInventoryItemPage = ({ initialProductItem }: { initialProductIt
     }, []);
 
     return (
-        <Container>
-            <Title>Edit Product Item</Title>
-            <Form onSubmit={handleSubmit}>
-                <FormField>
-                    <Label htmlFor="product">Product:</Label>
-                    <select
-                        id="product_id"
-                        name="product_id"
-                        value={productId}
-                        onChange={(e) => setProductId(parseInt(e.target.value))}
-                        required
-                        >
-                        <option value="">Select a product</option>
-                        {products_list.map((product) => (
-                            <option key={product.product_id} value={product.product_id}>
-                            {product.name}
-                            </option>
-                        ))}
-                    </select>
-                </FormField>
+        <Layout>
+            <Container>
+                <Title>Edit Product Item</Title>
+                <Form onSubmit={handleSubmit}>
+                    <FormField>
+                        <Label htmlFor="product">Product:</Label>
+                        <select
+                            id="product_id"
+                            name="product_id"
+                            value={productId}
+                            onChange={(e) => setProductId(parseInt(e.target.value))}
+                            required
+                            >
+                            <option value="">Select a product</option>
+                            {products_list.map((product) => (
+                                <option key={product.product_id} value={product.product_id}>
+                                {product.name}
+                                </option>
+                            ))}
+                        </select>
+                    </FormField>
 
-                <FormField>
-                    <Label htmlFor="inventory_item">Inventory Item:</Label>
-                    <select
-                        id="inventory_item_id"
-                        name="inventory_item_id"
-                        value={inventoryItemId}
-                        onChange={(e) => setInventoryItemId(parseInt(e.target.value))}
-                        required
-                        >
-                        <option value="">Select an inventory item</option>
-                        {inventory_items_list.map((inventory_item) => (
-                            <option key={inventory_item.inventory_item_id} value={inventory_item.inventory_item_id}>
-                            {inventory_item.name}
-                            </option>
-                        ))}
-                    </select>
-                </FormField>
+                    <FormField>
+                        <Label htmlFor="inventory_item">Inventory Item:</Label>
+                        <select
+                            id="inventory_item_id"
+                            name="inventory_item_id"
+                            value={inventoryItemId}
+                            onChange={(e) => setInventoryItemId(parseInt(e.target.value))}
+                            required
+                            >
+                            <option value="">Select an inventory item</option>
+                            {inventory_items_list.map((inventory_item) => (
+                                <option key={inventory_item.inventory_item_id} value={inventory_item.inventory_item_id}>
+                                {inventory_item.name}
+                                </option>
+                            ))}
+                        </select>
+                    </FormField>
 
-                <FormField>
-                    <Label htmlFor="quantity">Quantity:</Label>
-                    <Input
-                        type="number"
-                        id="quantity"
-                        step="0.01"
-                        value={quantity}
-                        onChange={(e: { target: { value: string }; }) => setQuantity(parseInt(e.target.value))}
-                    />
-                </FormField>
+                    <FormField>
+                        <Label htmlFor="quantity">Quantity:</Label>
+                        <Input
+                            type="number"
+                            id="quantity"
+                            min="0"
+                            value={quantity}
+                            onChange={(e: { target: { value: string }; }) => setQuantity(parseInt(e.target.value))}
+                        />
+                    </FormField>
 
-                <FormField>
-                    <button type="submit">Update Product Item</button>
-                </FormField>
-            </Form>
-        </Container>
+                    <FormField>
+                        <SubmitButtonContainer>
+                            <Button type="submit">Update Product Item</Button>
+                        </SubmitButtonContainer>
+                    </FormField>
+                </Form>
+            </Container>
+        </Layout>
     );
 };
 

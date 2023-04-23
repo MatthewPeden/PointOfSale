@@ -2,11 +2,17 @@ import styled from 'styled-components';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 import db from '../../db';
 import { RowDataPacket } from 'mysql2';
+import { format } from 'date-fns';
 import router from 'next/router';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -37,17 +43,43 @@ const Table = styled.table`
   }
 `;
 
-const Button = styled.a`
+const Button = styled.button`
   display: block;
-  width: 175px;
+  width: 200px;
   height: 35px;
   background-color: #5f4b8b;
   color: white;
   text-align: center;
   line-height: 35px;
   font-size: 16px;
-  border-radius: 30px;
+  border-radius: 15px;
   margin-bottom: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  background-clip: padding-box;
+  outline: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
+
+const ActionButton = styled.a`
+  width: 50px;
+  height: 25px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-left: 12px;
+  padding-right: 12px;
+  background-color: #5f4b8b;
+  color: white;
+  text-align: center;
+  line-height: 26px;
+  font-size: 14px;
+  border-radius: 12px;
   cursor: pointer;
   text-decoration: none;
   &:hover {
@@ -56,12 +88,13 @@ const Button = styled.a`
   &:first-of-type {
     margin-top: 0;
   }
-`
+`;
   
 interface InventoryItem {
     inventory_item_id: number;
     name: string;
     price: number;
+    quantity: number;
     reorder_point: string;
 }
   
@@ -87,19 +120,10 @@ const handleEditButtonClick = (id: number) => {
   router.push(`/edit-inventory-item/${id}`);
 };
 
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }).format(date);
-};
-
 const ManageInventoryItemsPage: React.FC<ManageInventoryItemsPageProps> = ({ inventory_items }) => {
   return (
-    <Container>
-      <div style={{ marginTop: '60px' }}>
+    <Layout>
+      <Container>
         <Title>Manage Inventory Items</Title>
         <Button onClick={() => handleAdd()}>Add New Inventory Item</Button>
         <Table>
@@ -108,6 +132,7 @@ const ManageInventoryItemsPage: React.FC<ManageInventoryItemsPageProps> = ({ inv
               <th>ID</th>
               <th>Name</th>
               <th>Price</th>
+              <th>Quantity</th>
               <th>Reorder Point</th>
               <th>Actions</th>
             </tr>
@@ -117,19 +142,20 @@ const ManageInventoryItemsPage: React.FC<ManageInventoryItemsPageProps> = ({ inv
               <tr key={inventory_item.inventory_item_id}>
                 <td>{inventory_item.inventory_item_id}</td>
                 <td>{inventory_item.name}</td>
-                <td>{inventory_item.price}</td>
-                <td>{formatDate(inventory_item.reorder_point)}</td>
+                <td>${inventory_item.price}</td>
+                <td>{inventory_item.quantity}</td>
+                <td>{format(new Date(inventory_item.reorder_point), 'MMM d, yyyy')}</td>
                 <td>
-                  <button onClick={() => handleEditButtonClick(inventory_item.inventory_item_id)}>Edit</button>
+                  <ActionButton onClick={() => handleEditButtonClick(inventory_item.inventory_item_id)}>Edit</ActionButton>
                   {' | '}
-                  <button onClick={() => handleDelete(inventory_item.inventory_item_id)}>Delete</button>
+                  <ActionButton onClick={() => handleDelete(inventory_item.inventory_item_id)}>Delete</ActionButton>
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
-      </div>
-    </Container>
+      </Container>
+    </Layout>
   );
 };
 
@@ -138,7 +164,7 @@ export const getServerSideProps = withPageAuthRequired({
     const connection = await db();
 
     const [inventoryItemRows] = await connection.query(`
-      SELECT inventory_item_id, name, price, reorder_point
+      SELECT *
       FROM inventory_items
     `);
 
@@ -149,6 +175,7 @@ export const getServerSideProps = withPageAuthRequired({
         inventory_item_id: row.inventory_item_id,
         name: row.name,
         price: row.price,
+        quantity: row.quantity,
         reorder_point: row.reorder_point.toISOString()
       };
     });

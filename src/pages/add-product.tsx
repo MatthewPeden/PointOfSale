@@ -4,10 +4,13 @@ import styled from 'styled-components';
 import db from '../../db';
 import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 import { RowDataPacket } from 'mysql2';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -40,6 +43,36 @@ const Input = styled.input`
   box-sizing: border-box;
   font-size: 14px;
   padding: 10px;
+  width: 100%;
+`;
+
+const Button = styled.button`
+  display: block;
+  width: 175px;
+  height: 35px;
+  background-color: #5f4b8b;
+  color: white;
+  text-align: center;
+  line-height: 35px;
+  font-size: 16px;
+  border-radius: 15px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  background-clip: padding-box;
+  outline: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
+
+const SubmitButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
   width: 100%;
 `;
 
@@ -92,6 +125,7 @@ const AddProductPage: React.FC<AddProductProps> = ({ categories }) => {
     }, []);
 
     return (
+      <Layout>
         <Container>
             <Title>Add New Product</Title>
             <Form onSubmit={handleSubmit}>
@@ -139,16 +173,20 @@ const AddProductPage: React.FC<AddProductProps> = ({ categories }) => {
                         type="number"
                         id="price"
                         step="0.01"
+                        min="0"
                         value={price}
                         onChange={(e: { target: { value: SetStateAction<string>; }; }) => setPrice(e.target.value)}
                     />
                 </FormField>
 
-                <FormField>
-                    <button type="submit">Add Product</button>
+                <FormField className="button">
+                    <SubmitButtonContainer>
+                      <Button type="submit">Add Product</Button>
+                    </SubmitButtonContainer>
                 </FormField>
             </Form>
         </Container>
+      </Layout>
     );
 };
 

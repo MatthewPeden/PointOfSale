@@ -4,10 +4,15 @@ import db from '../../db';
 import { RowDataPacket } from 'mysql2';
 import router from 'next/router';
 import { withRole, getServerSidePropsForManager } from './api/auth/RBAC.tsx';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -38,7 +43,7 @@ const Table = styled.table`
   }
 `;
 
-const Button = styled.a`
+const Button = styled.button`
   display: block;
   width: 175px;
   height: 35px;
@@ -47,8 +52,34 @@ const Button = styled.a`
   text-align: center;
   line-height: 35px;
   font-size: 16px;
-  border-radius: 30px;
+  border-radius: 15px;
   margin-bottom: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  background-clip: padding-box;
+  outline: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
+
+const ActionButton = styled.a`
+  width: 50px;
+  height: 25px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-left: 12px;
+  padding-right: 12px;
+  background-color: #5f4b8b;
+  color: white;
+  text-align: center;
+  line-height: 26px;
+  font-size: 14px;
+  border-radius: 12px;
   cursor: pointer;
   text-decoration: none;
   &:hover {
@@ -78,6 +109,7 @@ interface InventoryItem {
     inventory_item_id: number;
     name: string;
     price: number;
+    quantity: number;
     reorder_point: string;
 }
   
@@ -107,8 +139,8 @@ const handleEditButtonClick = (id: number) => {
 
 const ManageProductInventoryItemsPage: React.FC<ManageProductInventoryItemsPageProps> = ({ product_inventory_items, products, inventory_items }) => {
   return (
-    <Container>
-      <div style={{ marginTop: '60px' }}>
+    <Layout>
+      <Container>
         <Title>Manage Product Items</Title>
         <Button onClick={() => handleAdd()}>Add Product Item</Button>
         <Table>
@@ -139,16 +171,16 @@ const ManageProductInventoryItemsPage: React.FC<ManageProductInventoryItemsPageP
                 </td>
                 <td>{product_inventory_item.quantity}</td>
                 <td>
-                  <button onClick={() => handleEditButtonClick(product_inventory_item.product_inventory_item_id)}>Edit</button>
+                  <ActionButton onClick={() => handleEditButtonClick(product_inventory_item.product_inventory_item_id)}>Edit</ActionButton>
                   {' | '}
-                  <button onClick={() => handleDelete(product_inventory_item.product_inventory_item_id)}>Delete</button>
+                  <ActionButton onClick={() => handleDelete(product_inventory_item.product_inventory_item_id)}>Delete</ActionButton>
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
-      </div>
-    </Container>
+      </Container>
+    </Layout>
   );
 };
 
@@ -173,7 +205,7 @@ export const getServerSideProps = async (context) => {
   `);
 
   const [inventoryItemRows] = await connection.query(`
-    SELECT inventory_item_id, name, price, reorder_point
+    SELECT inventory_item_id, name, price, quantity, reorder_point
     FROM inventory_items
   `);
 
@@ -194,6 +226,7 @@ export const getServerSideProps = async (context) => {
           inventory_item_id: row.inventory_item_id,
           name: row.name,
           price: row.price,
+          quantity: row.quantity,
           reorder_point: row.reorder_point.toISOString()
       };
   });

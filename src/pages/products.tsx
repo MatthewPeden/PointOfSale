@@ -3,10 +3,15 @@ import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 import db from '../../db';
 import { RowDataPacket } from 'mysql2';
 import router from 'next/router';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -37,7 +42,7 @@ const Table = styled.table`
   }
 `;
 
-const Button = styled.a`
+const Button = styled.button`
   display: block;
   width: 175px;
   height: 35px;
@@ -46,8 +51,34 @@ const Button = styled.a`
   text-align: center;
   line-height: 35px;
   font-size: 16px;
-  border-radius: 30px;
+  border-radius: 15px;
   margin-bottom: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  background-clip: padding-box;
+  outline: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
+
+const ActionButton = styled.a`
+  width: 50px;
+  height: 25px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  padding-left: 12px;
+  padding-right: 12px;
+  background-color: #5f4b8b;
+  color: white;
+  text-align: center;
+  line-height: 26px;
+  font-size: 14px;
+  border-radius: 12px;
   cursor: pointer;
   text-decoration: none;
   &:hover {
@@ -96,45 +127,45 @@ const handleEditButtonClick = (id: number) => {
 
 const ManageProductsPage: React.FC<ManageProductsPageProps> = ({ products, categories }) => {
   return (
-    <Container>
-      <div style={{ marginTop: '60px' }}>
-        <Title>Manage Products</Title>
-        <Button onClick={() => handleAdd()}>Add New Product</Button>
-        <Table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product: Product) => (
-              <tr key={product.product_id}>
-                <td>{product.product_id}</td>
-                <td>{product.name}</td>
-                <td>{product.description}</td>
-                <td>
-                  {
-                    categories.find((category) => category.category_id === product.category_id)
-                      ?.name
-                  }
-                </td>
-                <td>${product.price}</td>
-                <td>
-                  <button onClick={() => handleEditButtonClick(product.product_id)}>Edit</button>
-                  {' | '}
-                  <button onClick={() => handleDelete(product.product_id)}>Delete</button>
-                </td>
+    <Layout>
+      <Container>
+      <Title>Manage Products</Title>
+          <Button onClick={() => handleAdd()}>Add New Product</Button>
+          <Table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      </div>
-    </Container>
+            </thead>
+            <tbody>
+              {products.map((product: Product) => (
+                <tr key={product.product_id}>
+                  <td>{product.product_id}</td>
+                  <td>{product.name}</td>
+                  <td>{product.description}</td>
+                  <td>
+                    {
+                      categories.find((category) => category.category_id === product.category_id)
+                        ?.name
+                    }
+                  </td>
+                  <td>${product.price}</td>
+                  <td>
+                    <ActionButton onClick={() => handleEditButtonClick(product.product_id)}>Edit</ActionButton>
+                    {' | '}
+                    <ActionButton onClick={() => handleDelete(product.product_id)}>Delete</ActionButton>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+      </Container>
+    </Layout>
   );
 };
 

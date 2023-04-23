@@ -4,10 +4,13 @@ import styled from 'styled-components';
 import { GetServerSideProps } from 'next';
 import db from '../../db';
 import { RowDataPacket } from 'mysql2';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -40,6 +43,36 @@ const Input = styled.input`
   box-sizing: border-box;
   font-size: 14px;
   padding: 10px;
+  width: 100%;
+`;
+
+const Button = styled.button`
+  display: block;
+  width: 175px;
+  height: 35px;
+  background-color: #5f4b8b;
+  color: white;
+  text-align: center;
+  line-height: 35px;
+  font-size: 16px;
+  border-radius: 15px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  background-clip: padding-box;
+  outline: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+  &:first-of-type {
+    margin-top: 0;
+  }
+`;
+
+const SubmitButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
   width: 100%;
 `;
 
@@ -96,63 +129,68 @@ const EditProductPage = ({ initialProduct }: { initialProduct: Product }) => {
     }, []);
 
     return (
-        <Container>
-            <Title>Edit Product</Title>
-            <Form onSubmit={handleSubmit}>
-                <FormField>
-                    <Label htmlFor="name">Name:</Label>
-                    <Input
-                        type="text"
-                        id="name"
-                        value={name}
-                        onChange={(e: { target: { value: SetStateAction<string>; }; }) => setName(e.target.value)}
-                    />
-                </FormField>
+        <Layout>
+            <Container>
+                <Title>Edit Product</Title>
+                <Form onSubmit={handleSubmit}>
+                    <FormField>
+                        <Label htmlFor="name">Name:</Label>
+                        <Input
+                            type="text"
+                            id="name"
+                            value={name}
+                            onChange={(e: { target: { value: SetStateAction<string>; }; }) => setName(e.target.value)}
+                        />
+                    </FormField>
 
-                <FormField>
-                    <Label htmlFor="description">Description:</Label>
-                    <Input
-                        type="text"
-                        id="description"
-                        value={description}
-                        onChange={(e: { target: { value: SetStateAction<string>; }; }) => setDescription(e.target.value)}
-                    />
-                </FormField>
+                    <FormField>
+                        <Label htmlFor="description">Description:</Label>
+                        <Input
+                            type="text"
+                            id="description"
+                            value={description}
+                            onChange={(e: { target: { value: SetStateAction<string>; }; }) => setDescription(e.target.value)}
+                        />
+                    </FormField>
 
-                <FormField>
-                    <Label htmlFor="category">Category:</Label>
-                    <select
-                        id="category_id"
-                        name="category_id"
-                        value={categoryId}
-                        onChange={(e) => setCategoryId(parseInt(e.target.value))}
-                        required
-                        >
-                        <option value="">Select a category</option>
-                        {categories_list.map((category) => (
-                            <option key={category.category_id} value={category.category_id}>
-                            {category.name}
-                            </option>
-                        ))}
-                    </select>
-                </FormField>
+                    <FormField>
+                        <Label htmlFor="category">Category:</Label>
+                        <select
+                            id="category_id"
+                            name="category_id"
+                            value={categoryId}
+                            onChange={(e) => setCategoryId(parseInt(e.target.value))}
+                            required
+                            >
+                            <option value="">Select a category</option>
+                            {categories_list.map((category) => (
+                                <option key={category.category_id} value={category.category_id}>
+                                {category.name}
+                                </option>
+                            ))}
+                        </select>
+                    </FormField>
 
-                <FormField>
-                    <Label htmlFor="price">Price:</Label>
-                    <Input
-                        type="number"
-                        id="price"
-                        step="0.01"
-                        value={price}
-                        onChange={(e: { target: { value: string }; }) => setPrice(parseInt(e.target.value))}
-                    />
-                </FormField>
+                    <FormField>
+                        <Label htmlFor="price">Price:</Label>
+                        <Input
+                            type="number"
+                            id="price"
+                            step="0.01"
+                            min="0"
+                            value={price}
+                            onChange={(e: { target: { value: string }; }) => setPrice(parseInt(e.target.value))}
+                        />
+                    </FormField>
 
-                <FormField>
-                    <button type="submit">Update Product</button>
-                </FormField>
-            </Form>
-        </Container>
+                    <FormField>
+                        <SubmitButtonContainer>
+                            <Button type="submit">Update Product</Button>
+                        </SubmitButtonContainer>
+                    </FormField>
+                </Form>
+            </Container>
+        </Layout>
     );
 };
 

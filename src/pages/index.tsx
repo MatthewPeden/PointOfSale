@@ -2,12 +2,11 @@ import Link from 'next/link';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import styled from 'styled-components';
 import Layout from '../components/Layout';
+import router from 'next/router';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
   min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
@@ -28,36 +27,51 @@ const Text = styled.p`
 `;
 
 const Button = styled.button`
-  font-size: 16px;
-  padding: 0.5rem 1rem;
+  display: block;
+  width: 275px;
+  height: 60px;
   background-color: #5f4b8b;
   color: white;
-  border-radius: 30px;
+  text-align: center;
+  line-height: 35px;
+  font-size: 16px;
+  border-radius: 15px;
+  margin: 16px;
   cursor: pointer;
+  text-decoration: none;
   border: none;
+  background-clip: padding-box;
+  outline: none;
   &:hover {
     background-color: #7d6ba0;
   }
-`;
-
-const StyledLink = styled(Link)`
-  display: block;
-  margin-bottom: 5px;
-  color: #5f4b8b;
-  font-size: 16px;
-  text-decoration: none;
-  &:hover {
-    color: #7d6ba0;
+  &:first-of-type {
+    margin-top: 0;
   }
 `;
 
-const CenteredLinks = styled.div`
+const ButtonContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  margin-top: 40px;
 `;
+
+const handleDraw = () => {
+  router.push('/drawTest');
+};
+
+const handleCheckout = () => {
+  router.push('/transaction');
+};
+
+const handleManagement = () => {
+  router.push('/management');
+};
+
+const handleReports = () => {
+  router.push('/reports');
+};
 
 export default function Home() {
   const { user, error, isLoading } = useUser();
@@ -68,35 +82,12 @@ export default function Home() {
         <Layout>
           <Title>Welcome {user.name}!</Title>
           <Text>You are logged in with Auth0.</Text>
-          <CenteredLinks>
-            <ul>
-              <li>
-                <StyledLink href="/drawTest">Draw Test</StyledLink>
-              </li>
-             <li>
-              <StyledLink href="/payments_report">Payments Report</StyledLink>
-            </li>
-            <li>
-              <StyledLink href="/inventory_items_report">Inventory Items Report</StyledLink>
-            </li>
-            <li>
-              <StyledLink href="/orders_report">Orders Report</StyledLink>
-            </li>
-            <li>
-              <StyledLink href="/categories">Categories</StyledLink>
-            </li>
-            <li>
-              <StyledLink href="/products">Products</StyledLink>
-            </li>
-            <li>
-              <StyledLink href="/inventory_items">Inventory Items</StyledLink>
-            </li>
-            <li>
-              <StyledLink href="/product_inventory_items">Product Items</StyledLink>
-            </li>
-            <p></p>
-          </ul>
-          </CenteredLinks>
+          <ButtonContainer>
+            <Button onClick={() => handleDraw()}>Tables and Orders</Button>
+            <Button onClick={() => handleCheckout()}>Checkout Order</Button>
+            <Button onClick={() => handleManagement()}>Management</Button>
+            <Button onClick={() => handleReports()}>Reports</Button>
+          </ButtonContainer>
         </Layout>
       </Container>
     );

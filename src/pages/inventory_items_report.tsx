@@ -3,12 +3,16 @@ import { RowDataPacket } from 'mysql2';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import db from '../../db';
-import { withPageAuthRequired } from '@auth0/nextjs-auth0';
-
+import { withRole, getServerSidePropsForManager } from './api/auth/RBAC.tsx';
+import Layout from "../components/Layout";
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
   background-color: #ede6f5;
   padding: 20px;
+  padding-top: 40px;
 `;
 
 const Title = styled.h1`
@@ -43,6 +47,7 @@ interface InventoryItem {
   inventory_item_id: number;
   name: string;
   price: number;
+  quantity: number;
   reorder_point: string;
 }
 
@@ -52,15 +57,16 @@ interface InventoryItemReportPageProps {
 
 const InventoryItemReportPage: React.FC<InventoryItemReportPageProps> = ({ inventory_items }) => {
   return (
-    <Container>
-      <div style = {{ marginTop: "60px" }}>
-        <Title>Inventory Items</Title>
+    <Layout>
+      <Container>
+        <Title>Inventory Items Report</Title>
         <Table>
           <thead>
           <tr>
               <th>ID</th>
               <th>Name</th>
               <th>Price</th>
+              <th>Quantity</th>
               <th>Reorder Date</th>
           </tr>
           </thead>
@@ -70,21 +76,25 @@ const InventoryItemReportPage: React.FC<InventoryItemReportPageProps> = ({ inven
               <td>{inventory_item.inventory_item_id}</td>
               <td>{inventory_item.name}</td>
               <td>{inventory_item.price}</td>
+              <td>{inventory_item.quantity}</td>
               <td>{format(new Date(inventory_item.reorder_point), 'MMM d, yyyy')}</td>
               </tr>
           ))}
           </tbody>
         </Table>
-      </div>
-    </Container>
+      </Container>
+    </Layout>
   );
 };
 
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps(context) {
+export const getServerSideProps = async(context: NextPageContext) => {
+const authCheck = await getServerSidePropsForManager(context);
+    if ('redirect' in authCheck) {
+      return authCheck;
+  }
     const connection = await db();
     const [rows] = await connection.query(`
-      SELECT inventory_item_id, reorder_point
+      SELECT *
       FROM inventory_items
     `);
 
@@ -95,17 +105,18 @@ export const getServerSideProps = withPageAuthRequired({
         inventory_item_id: row.inventory_item_id,
         name: row.name,
         price: row.price,
-        reorder_point: new Date(row.reorder_point).toISOString(),
+        quantity: row.quantity,
+        reorder_point: row.reorder_point.toISOString(),
       };
     });
 
     return {
       props: {
+        ...authCheck.props,
         inventory_items: inventory_items,
       },
     };
-  },
-});
+  };
 
 
 
