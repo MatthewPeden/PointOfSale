@@ -1,8 +1,59 @@
-// pages/orders/[order_id].tsx
 import { useState } from "react";
 import executeQuery from "../../../lib/db";
 import { useRouter } from "next/router";
-import styles from "./OrderPage.module.css";
+import styled from "styled-components";
+
+const Container = styled.div`
+  background-color: #ede6f5;
+  padding: 20px;
+  min-height: calc(100vh - 60px);
+`;
+
+const Heading = styled.h1`
+  color: #8447c9;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+`;
+
+const Text = styled.p`
+  color: #8447c9;
+  font-size: 18px;
+  margin-bottom: 10px;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+`;
+
+const Label = styled.label`
+  color: #8447c9;
+  font-size: 18px;
+  margin-bottom: 10px;
+`;
+
+const Input = styled.input`
+  font-size: 16px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 10px;
+  border-radius: 30px;
+  border: 1px solid #8447c9;
+`;
+
+const Button = styled.button`
+  font-size: 16px;
+  padding: 0.5rem 1rem;
+  background-color: #5f4b8b;
+  color: white;
+  border-radius: 30px;
+  cursor: pointer;
+  border: none;
+  &:hover {
+    background-color: #7d6ba0;
+  }
+`;
 
 export async function getServerSideProps(context) {
   try {
@@ -70,31 +121,28 @@ export default function OrderPage({ order, error }) {
     }
   };
 
-    return (
-    <div className={styles.container}>
+     return (
+    <Container>
       {order ? (
         <>
-          <h1 className={styles.heading}>Order #{order.order_id}</h1>
+          <Heading>Order #{order.order_id}</Heading>
           <div>
-            <p>Order Date: {order.order_date}</p>
-            <p>Total Amount: {order.total_amount}</p>
+            <Text>Order Date: {order.order_date}</Text>
+            <Text>Total Amount: {order.total_amount}</Text>
           </div>
           {payment ? (
-            <div className={styles.paymentSuccessful}>
-              <p>Payment Successful, thank you!</p>
-            </div>
+            <Text>Payment Successful, thank you!</Text>
           ) : (
-            <form onSubmit={handleSubmit} className={styles.form}>
-              <label htmlFor="cash">Cash given:</label>
-              <input type="number" id="cash" name="cash" />
-              <br />
-              <button type="submit">Submit</button>
-            </form>
+            <Form onSubmit={handleSubmit}>
+              <Label htmlFor="cash">Cash given:</Label>
+              <Input type="number" id="cash" name="cash" />
+              <Button type="submit">Submit</Button>
+            </Form>
           )}
         </>
       ) : (
-        <p>{error}</p>
+        <Text>{error}</Text>
       )}
-    </div>
+    </Container>
   );
 }
