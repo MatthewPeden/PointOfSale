@@ -3,7 +3,7 @@ Here are the installation instructions for the Zamaco Point of Sale (POS) system
 Clone the repository or download the source code of the POS system:
 
 ```Copy code
-git clone https://github.com/your-username/your-pos-repo.git
+git clone https://github.com/ZaneWillgruber/PointOfSale.git
 ```
 If you downloaded a zip archive, extract it to a folder of your choice.
 
