@@ -110,7 +110,7 @@ const OrdersReportPage: React.FC<OrdersReportPageProps> = ({ orders }) => {
   return (
     <Layout>
       <Container>
-        <Title>Orders Report</Title>
+        <Title>Transactions Report</Title>
         <Form>
           <label>
             Start Date/Time:

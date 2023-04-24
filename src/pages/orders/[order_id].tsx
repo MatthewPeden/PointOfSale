@@ -3,6 +3,7 @@ import executeQuery from "../../../lib/db";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import Layout from "../../components/Layout";
+import { format } from "date-fns";
 
 
 const Container = styled.div`
@@ -133,15 +134,15 @@ const handleSubmit = async (e) => {
         <>
           <Heading>Order #{order.order_id}</Heading>
           <div>
-            <Text>Order Date: {order.order_date}</Text>
-            <Text>Total Amount: {order.total_amount}</Text>
+            <Text>Order Date: {format(new Date(order.order_date), 'MMM d, yyyy, hh:mm a')}</Text>
+            <Text>Total Amount: ${order.total_amount}</Text>
           </div>
           {payment ? (
             <Text>Payment Successful, thank you!</Text>
           ) : (
             <Form onSubmit={handleSubmit}>
               <Label htmlFor="cash">Cash given:</Label>
-              <Input type="number" id="cash" name="cash" step="0.01" />
+              <Input type="number" id="cash" name="cash" step="0.01" min="0" />
               <Button type="submit">Submit</Button>
             </Form>
           )}

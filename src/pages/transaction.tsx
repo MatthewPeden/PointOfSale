@@ -5,28 +5,6 @@ import styled from "styled-components";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import Layout from "../components/Layout";
 
-// Create a styled navbar component
-const Navbar = styled.nav`
-  position: fixed;
-  top: 0;
-  left: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  height: 60px;
-  background-color: #bda0d9;
-  color: white;
-`;
-
-// Create a styled navbar link component
-const NavbarLink = styled.a`
-  color: white;
-  text-decoration: none;
-  margin-right: 20px;
-  padding: 10px;
-`;
-
 // Create a styled form component
 const Form = styled.form`
   margin-top: 80px; // Add some margin to avoid overlapping with the navbar

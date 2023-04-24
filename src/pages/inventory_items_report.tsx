@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import { RowDataPacket } from 'mysql2';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import db from '../../db';
 import { withRole, getServerSidePropsForManager } from './api/auth/RBAC.tsx';
 import Layout from "../components/Layout";
+import { NextPageContext } from 'next';
 
 const Container = styled.div`
   display: flex;
@@ -96,6 +96,7 @@ const authCheck = await getServerSidePropsForManager(context);
     const [rows] = await connection.query(`
       SELECT *
       FROM inventory_items
+      ORDER BY reorder_point ASC
     `);
 
     await connection.end();

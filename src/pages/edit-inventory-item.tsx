@@ -152,15 +152,14 @@ const EditInventoryItemPage = ({ initialItem }: { initialItem: InventoryItem }) 
           </FormField>
 
           <FormField>
-            <label htmlFor="reorder_point">Reorder Point:</label>
-            <br/>
-            <input
-              type="date"
-              id="reorder_point"
-              defaultValue={reorderPoint}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setReorderPoint(e.target.value)}
-            />
-          </FormField>
+                        <Label htmlFor="reorder_point">Reorder Point:</Label>
+                        <Input
+                            type="date"
+                            id="reorder_point"
+                            value={reorderPoint}
+                            onChange={(e: { target: { value: SetStateAction<string>; }; }) => setReorderPoint(e.target.value.toString())}
+                        />
+                    </FormField>
 
           <FormField>
             <SubmitButtonContainer>
