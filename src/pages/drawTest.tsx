@@ -101,6 +101,7 @@ const DrawTest = () => {
     const [tableSelected, setTableSelected] = useState(false);
     const [selectedTable, setSelectedTable] = useState<Table | null>(null);
     const [mousePos, setMousePos] = useState({});
+    const [item, setItem] = useState<Item | null>(null);
 
     useEffect(() => {
         const handleMouseMove = (event: { clientX: any; clientY: any; }) => {
@@ -154,6 +155,15 @@ const DrawTest = () => {
             }
         });
     });
+
+    function transferToSeat(props: any) {
+        setItem(props.item);
+        setTool("transfer");
+    }
+
+    function transferAllToSeat() {
+        setTool("transferAll");
+    }
 
     function ItemButton(props: any) {
         return (
@@ -235,6 +245,31 @@ const DrawTest = () => {
                 }
             }
         }
+        else if (tool === "transfer") {
+            const element = getElementAtPosistion(clientX, clientY, elements);
+            if (element) {
+                if (element instanceof Chair && selectedChair) {
+                    element.items.push(item);
+                    const index = selectedChair.items.indexOf(item);
+                    if (index > -1) {
+                        selectedChair.items.splice(index, 1);
+                    }
+                    setItem(null);
+                    setTool("order");
+
+                }
+            }
+        }
+        else if (tool === "transferAll") {
+            const element = getElementAtPosistion(clientX, clientY, elements);
+            if (element) {
+                if (element instanceof Chair && selectedChair) {
+                    element.items = element.items.concat(selectedChair.items);
+                    selectedChair.items = [];
+                    setTool("order");
+                }
+            }
+        }
         else if (tool === 'order') {
             const element = getElementAtPosistion(clientX, clientY, elements);
             if (element) {
@@ -270,7 +305,7 @@ const DrawTest = () => {
         }
         else if (tool === 'paste') {
             const element = copiedElement;
-            if(!element) return;
+            if (!element) return;
             if (element instanceof Table) {
                 const id = elements.length;
                 const newElement = createElement(new Table(id, clientX - (element.x2 / 2), clientY - (element.y2 / 2), element.x2, element.y2));
@@ -421,121 +456,141 @@ const DrawTest = () => {
     return (
         <div>
             <Layout>
-            <div style={{ position: "relative" }}>
-                <canvas
-                    id="canvas"
-                    width={window.innerWidth}
-                    height={window.innerHeight}
-                    onMouseDown={handleMouseDown}
-                    onMouseMove={handleMouseMove}
-                    onMouseUp={handleMouseUp}
-                    style={{ position: "absolute" }}
-                >
-                    Canvas
-                </canvas>
-                <div style={{ position: "absolute", marginTop: "60px" }}>
-                    <input
-                        type="radio"
-                        id="selection"
-                        checked={tool === 'selection'}
-                        onChange={() => setTool('selection')}
-                    />
-                    <label htmlFor="selection">Selection</label>
-                    <input
-                        type="radio"
-                        id="copy"
-                        checked={tool === 'copy'}
-                        onChange={() => setTool('copy')}
-                    />
-                    <label htmlFor="copy">Copy</label>
-                    <input
-                        type="radio"
-                        id="paste"
-                        checked={tool === 'paste'}
-                        onChange={() => setTool('paste')}
-                    />
-                    <label htmlFor="paste">Paste</label>
-                    <input
-                        type="radio"
-                        id="delete"
-                        checked={tool === 'delete'}
-                        onChange={() => setTool('delete')}
-                    />
-                    <label htmlFor="delete">Delete</label>
-                    <input
-                        type="radio"
-                        id="table"
-                        checked={tool === 'table'}
-                        onChange={() => setTool('table')}
-                    />
-                    <label htmlFor="table">Table</label>
-                    <input
-                        type="radio"
-                        id="chair"
-                        checked={tool === 'chair'}
-                        onChange={() => setTool('chair')}
-                    />
-                    <label htmlFor="chair">Chair</label>
-                    <input
-                        type="radio"
-                        id="link"
-                        checked={tool === 'link'}
-                        onChange={() => setTool('link')}
-                    />
-                    <label htmlFor="link">Link</label>
-                    <input
-                        type="radio"
-                        id="order"
-                        checked={tool === 'order'}
-                        onChange={() => setTool('order')}
-                    />
-                    <label htmlFor="order">Order</label>
+                <div style={{ position: "relative" }}>
+                    <canvas
+                        id="canvas"
+                        width={window.innerWidth}
+                        height={window.innerHeight}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                        style={{ position: "absolute" }}
+                    >
+                        Canvas
+                    </canvas>
+                    <div style={{ position: "absolute", marginTop: "60px" }}>
+                        <input
+                            type="radio"
+                            id="selection"
+                            checked={tool === 'selection'}
+                            onChange={() => setTool('selection')}
+                        />
+                        <label htmlFor="selection">Selection</label>
+                        <input
+                            type="radio"
+                            id="copy"
+                            checked={tool === 'copy'}
+                            onChange={() => setTool('copy')}
+                        />
+                        <label htmlFor="copy">Copy</label>
+                        <input
+                            type="radio"
+                            id="paste"
+                            checked={tool === 'paste'}
+                            onChange={() => setTool('paste')}
+                        />
+                        <label htmlFor="paste">Paste</label>
+                        <input
+                            type="radio"
+                            id="delete"
+                            checked={tool === 'delete'}
+                            onChange={() => setTool('delete')}
+                        />
+                        <label htmlFor="delete">Delete</label>
+                        <input
+                            type="radio"
+                            id="table"
+                            checked={tool === 'table'}
+                            onChange={() => setTool('table')}
+                        />
+                        <label htmlFor="table">Table</label>
+                        <input
+                            type="radio"
+                            id="chair"
+                            checked={tool === 'chair'}
+                            onChange={() => setTool('chair')}
+                        />
+                        <label htmlFor="chair">Chair</label>
+                        <input
+                            type="radio"
+                            id="link"
+                            checked={tool === 'link'}
+                            onChange={() => setTool('link')}
+                        />
+                        <label htmlFor="link">Link</label>
+                        <input
+                            type="radio"
+                            id="order"
+                            checked={tool === 'order'}
+                            onChange={() => setTool('order')}
+                        />
+                        <label htmlFor="order">Order</label>
 
-                    The mouse is at position{' '}
-                    <b>
-                        ({mousePos.x}, {mousePos.y})
-                    </b>
-                </div>
-                {(chairSelected === true || tableSelected === true) &&
-                    <div style={{ position: "absolute", right: "0", marginTop: "60px", width: window.innerWidth * .25, height: window.innerHeight / 2, border: "2px solid black", overflow: "scroll", gridTemplateColumns: "33% 33% 33%" }}>
-                        <Tabs>
-                            <TabList style={{ listStyle: "none", padding: "0", display: "flex", margin: "auto", width: "100%", alignItems: "stretch" }}>
-                                <Tab style={{ marginTop: "0" }}>
-                                    <TabOption name="Order" />
-                                </Tab>
-                                <Tab>
-                                    <TabOption name="Items" />
-                                </Tab>
-                                <Tab>
-                                    <TabOption name="Transfer" />
-                                </Tab>
-                            </TabList>
-                            <TabPanel>
-                                <div className="grid-container" style={{ display: "grid", gap: "50px 100px" }}>
-                                    <ItemButton name="test" price="10.12" />
-                                    <ItemButton name="test" />
-                                    <ItemButton name="test" />
-                                    <ItemButton name="test" />
-                                    <ItemButton name="test" />
-                                </div>
-                            </TabPanel>
-                            <TabPanel>
-                                {(chairSelected === true) &&
-                                    <ItemTab chairSelected={chairSelected} chair={selectedChair}/>
-                                }
-                                {(tableSelected === true) &&
-                                    <ItemTab tableSelected={tableSelected} table={selectedTable} />
-                                }
-
-                            </TabPanel>
-                            <TabPanel>
-                                TODO
-                            </TabPanel>
-                        </Tabs>
+                        The mouse is at position{' '}
+                        <b>
+                            ({mousePos.x}, {mousePos.y})
+                        </b>
                     </div>
-                }
+                    {(chairSelected === true || tableSelected === true) &&
+                        <div style={{ position: "absolute", right: "0", marginTop: "60px", width: window.innerWidth * .25, height: window.innerHeight / 2, border: "2px solid black", overflow: "scroll", gridTemplateColumns: "33% 33% 33%" }}>
+                            <Tabs>
+                                <TabList style={{ listStyle: "none", padding: "0", display: "flex", margin: "auto", width: "100%", alignItems: "stretch" }}>
+                                    <Tab style={{ marginTop: "0" }}>
+                                        <TabOption name="Order" />
+                                    </Tab>
+                                    <Tab>
+                                        <TabOption name="Items" />
+                                    </Tab>
+                                    {(chairSelected === true) &&
+                                        <Tab>
+                                            <TabOption name="Transfer" />
+                                        </Tab>
+                                    }
+                                </TabList>
+                                <TabPanel>
+                                    <div className="grid-container" style={{ display: "grid", gap: "50px 100px" }}>
+                                        <ItemButton name="test" price="10.12" />
+                                        <ItemButton name="test" />
+                                        <ItemButton name="test" />
+                                        <ItemButton name="test" />
+                                        <ItemButton name="test" />
+                                    </div>
+                                </TabPanel>
+                                <TabPanel>
+                                {(chairSelected === true && selectedChair && selectedChair.items.length > 0) && 
+                                    <button onClick={transferAllToSeat}>Transfer All To Seat</button>
+                                }
+                                    {(chairSelected === true) &&
+                                        selectedChair?.items.map((item: any, index: any) => {
+                                            return (
+                                                <div style={{ border: "2px solid black", borderRadius: "16px" }}>
+                                                    <div key={index} style={{ padding: "8px" }}>
+                                                        <h3>{item.name}</h3>
+                                                        <p>{item.price}</p>
+                                                        <button onClick={() => transferToSeat({ item })}>Transfer To Seat</button>
+                                                    </div>
+                                                </div>
+                                            )
+                                        }
+                                        )
+                                    }
 
-            </div>
+
+                                    {(tableSelected === true) &&
+                                        <ItemTab tableSelected={tableSelected} table={selectedTable} />
+                                    }
+
+                                </TabPanel>
+                                {(chairSelected === true) &&
+                                    <TabPanel>
+                                        TODO
+                                    </TabPanel>
+                                }
+                            </Tabs>
+                        </div>
+                    }
+
+                </div>
             </Layout>
         </div>
     );
