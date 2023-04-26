@@ -226,7 +226,7 @@ const DrawTest = () => {
             },
             body: JSON.stringify({
                 order_date: formattedDate,
-                total_amount: 10,
+                total_amount: 0,
             }),
         });
 
@@ -767,7 +767,7 @@ const DrawTest = () => {
                                     {(chairSelected === true) &&
                                         selectedChair?.items.map((item: any, index: any) => {
                                             return (
-                                                <div style={{ border: "2px solid black", borderRadius: "16px" }}>
+                                                <div style={{ border: "2px solid black", borderRadius: "16px", backgroundColor: "#fff" }}>
                                                     <div key={index} style={{ padding: "8px" }}>
                                                         <h3>{item.name}</h3>
                                                         <p>{item.price}</p>
