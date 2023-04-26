@@ -116,7 +116,7 @@ const DrawTest = () => {
     const [rawChairs, setRawChairs] = useState([]);
 
     const fetchInventoryItems = async () => {
-        const response = await fetch('/api/product_inventory_item/get-inventory-items');
+        const response = await fetch('/api/product/get-products');
         const data = await response.json();
         setInventoryItems(data);
     };
@@ -226,6 +226,7 @@ const DrawTest = () => {
             },
             body: JSON.stringify({
                 order_date: formattedDate,
+                total_amount: 10,
             }),
         });
 
