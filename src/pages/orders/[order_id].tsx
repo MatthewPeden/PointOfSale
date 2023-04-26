@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import styled from "styled-components";
 import Layout from "../../components/Layout";
 import { format } from "date-fns";
+import { useEffect } from "react";
 
 
 const Container = styled.div`
@@ -92,27 +93,42 @@ export default function OrderPage({ order, error }) {
   const router = useRouter();
   const [payment, setPayment] = useState(null);
   const [change, setChange] = useState(null);
+  const [salesTax, setSalesTax] = useState(0);
+  const TAX_RATE = 0.06; // 6% sales tax
+
+useEffect(() => {
+  calculateSalesTax();
+}, []);
+
+function calculateSalesTax() {
+  const tax = order.total_amount * TAX_RATE;
+  setSalesTax(tax);
+}
 
 const handleSubmit = async (e) => {
   e.preventDefault();
   const cash_given = e.target.cash.value;
 
-  if (!cash_given || isNaN(cash_given) || cash_given < order.total_amount) {
-    alert("Please enter a valid amount of cash");
-    return;
-  }
+// Inside the handleSubmit function
+const totalWithTax = order.total_amount + salesTax;
 
-  const response = await fetch("/api/payments", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      order_id: order.order_id,
-      total_amount: order.total_amount,
-      cash_given: cash_given,
-    }),
-  });
+if (!cash_given || isNaN(cash_given) || cash_given < totalWithTax) {
+  alert("Please enter a valid amount of cash");
+  return;
+}
+
+const response = await fetch("/api/payments", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    order_id: order.order_id,
+    total_amount: order.total_amount, // Send the price after sales tax
+    cash_given: cash_given,
+  }),
+});
+
 
   const data = await response.json();
 
@@ -135,7 +151,7 @@ const handleSubmit = async (e) => {
           <Heading>Order #{order.order_id}</Heading>
           <div>
             <Text>Order Date: {format(new Date(order.order_date), 'MMM d, yyyy, hh:mm a')}</Text>
-            <Text>Total Amount: ${order.total_amount}</Text>
+<Text>Total Amount: ${(order.total_amount + salesTax).toFixed(2)}</Text>
           </div>
           {payment ? (
             <Text>Payment Successful, thank you!</Text>
