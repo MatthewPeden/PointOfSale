@@ -23,6 +23,95 @@ const Button = styled.button`
     }
 `;
 
+const SeatWrapper = styled.div`
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+`;
+
+const ItemWrapper = styled.div`
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+`;
+
+const SeatHeader = styled.h2`
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0 0 10px;
+`;
+
+const ItemHeader = styled.h3`
+  font-size: 20px;
+  font-weight: bold;
+  margin: 0 0 5px;
+`;
+
+const ItemPrice = styled.p`
+  font-size: 16px;
+  margin: 0;
+`;
+
+const SeatList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+`;
+
+const ChairWrapper = styled.div`
+  background-color: #ffffff;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+`;
+
+const ChairCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px solid #2b2b2b;
+  border-radius: 16px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  width: 300px;
+  margin: 16px;
+  transition: 0.3s;
+  background-color: #ffffff;
+  &:hover {
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  }
+`;
+
+const ChairCardContent = styled.div`
+  padding: 16px;
+`;
+
+const ItemName = styled.h3`
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+`;
+
+const TransferButton = styled.button`
+  display: inline-block;
+  font-size: 16px;
+  text-align: center;
+  padding: 12px 24px;
+  background-color: #1e90ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 16px;
+  &:hover {
+    background-color: #0f7ad4;
+  }
+`;
+
 export class ItemTab extends Component {
     tableSelected: any;
     chairSelected: any;
@@ -54,33 +143,35 @@ export class ItemTab extends Component {
             return (
                 seats.map((seat: any, index: any) => {
                     return (
-                        seat?.items.map((item: any, index: any) => {
-                            return (
-                                <div key={index}>
-                                    <h2>Seat: {seat.id}</h2>
-                                    <h3>{item.name}</h3>
-                                    <p>{item.price}</p>
-                                </div>
-                            )
-                        }
-                        )
-                    )
-                }
-                )
+                        <SeatWrapper>
+                            <SeatHeader>Seat: {seat.id}</SeatHeader>
+                            {seat.items.map((item: any, index: any) => {
+                                return (
+                                    <ItemWrapper key={index}>
+                                        <ItemHeader>{item.name}</ItemHeader>
+                                        <ItemPrice>${item.price}</ItemPrice>
+                                        <p>ID: {item.product_id}</p>
+                                    </ItemWrapper>
+                                );
+                            })}
+                        </SeatWrapper>
+                    );
+                })
             );
         }
         else {
             return (
                 chair?.items.map((item: any, index: any) => {
                     return (
-                        <div key={chair.id} style={{ border: "2px solid black", borderRadius: "16px" }}>
-                            <div key={index} style={{ padding: "8px" }}>
-                                <h3>{item.name}</h3>
-                                <p>{item.price}</p>
-                                <Button onClick={() => transferToSeat({item})}>Transfer To Seat</Button>
-                            </div>
-                        </div>
-                    )
+                        <ChairCard key={chair.id}>
+                            <ItemWrapper key={index}>
+                                <ItemHeader>{item.name}</ItemHeader>
+                                <ItemPrice>{item.price}</ItemPrice>
+                                <p>ID: {item.product_id}</p>
+                                <TransferButton onClick={() => transferToSeat({ item })}>Transfer To Seat</TransferButton>
+                            </ItemWrapper>
+                        </ChairCard>
+                    );
                 }
                 )
             );

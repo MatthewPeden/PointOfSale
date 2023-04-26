@@ -40,9 +40,11 @@ export class Chair extends SceneObject {
 export class Item { 
     name: string;
     price: number;
+    product_id: number;
 
-    constructor(name: string, price: number) {
+    constructor(name: string, price: number, product_id: number) {
         this.name = name;
         this.price = price;
+        this.product_id = product_id;
     }
 }

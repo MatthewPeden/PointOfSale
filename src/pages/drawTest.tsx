@@ -7,7 +7,15 @@ import { NumericFormat } from "react-number-format";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import { ItemTab } from "@/components/ItemTab";
 import Layout from "../components/Layout";
+import router from "next/router";
 
+interface InventoryItem {
+    inventory_item_id: number;
+    name: string;
+    price: number;
+    quantity: number;
+    reorder_point: string;
+}
 
 declare var ctx: any;
 
@@ -102,6 +110,28 @@ const DrawTest = () => {
     const [selectedTable, setSelectedTable] = useState<Table | null>(null);
     const [mousePos, setMousePos] = useState({});
     const [item, setItem] = useState<Item | null>(null);
+    const [inventory_items_list, setInventoryItems] = useState<InventoryItem[]>([]);
+    const [rawScene, setRawScene] = useState([]);
+    const [rawTables, setRawTables] = useState([]);
+    const [rawChairs, setRawChairs] = useState([]);
+
+    const fetchInventoryItems = async () => {
+        const response = await fetch('/api/product_inventory_item/get-inventory-items');
+        const data = await response.json();
+        setInventoryItems(data);
+    };
+
+    const fetchTables = async () => {
+        const response = await fetch('/api/scene/get-tables');
+        const data = await response.json();
+        setRawTables(data);
+    };
+
+    const fetchChairs = async () => {
+        const response = await fetch('/api/scene/get-chairs');
+        const data = await response.json();
+        setRawChairs(data);
+    };
 
     useEffect(() => {
         const handleMouseMove = (event: { clientX: any; clientY: any; }) => {
@@ -109,6 +139,10 @@ const DrawTest = () => {
         };
 
         window.addEventListener('mousemove', handleMouseMove);
+
+        fetchInventoryItems();
+        fetchTables();
+        fetchChairs();
 
         return () => {
             window.removeEventListener(
@@ -156,6 +190,92 @@ const DrawTest = () => {
         });
     });
 
+    const GridContainer = styled.div`
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-flow: dense;
+    gap: 40px;
+    margin-top: 40px;
+`;
+
+    const Button = styled.button`
+        border: 2px solid black;
+        border-radius: 20px;
+        background-color: #fff;
+        color: #333;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 16px;
+        text-align: center;
+        transition: all 0.2s ease;
+      
+        &:hover {
+          background-color: #333;
+          color: #fff;
+        }
+      `;
+
+    async function startOrder(items: Item[]) {
+
+        const now = new Date();
+        const formattedDate = now.toISOString().slice(0, 19).replace('T', ' ');
+        const response = await fetch('/api/order/add-order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                order_date: formattedDate,
+            }),
+        });
+
+        if (response.ok) {
+            let data = await response.json();
+
+            items.forEach((item: Item) => {
+                addToOrder(data.id, item);
+            });
+
+            let amount = 0;
+            items.forEach((item: Item) => {
+                amount += Number(item.price);
+            });
+
+            updateOrderPrice(data.id, amount);
+
+        }
+
+    }
+
+    async function updateOrderPrice(id: number, amount: number) {
+        const response = await fetch('/api/order/edit-order-price', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                order_id: id,
+                amount: amount,
+            }),
+        });
+    }
+
+    async function addToOrder(orderId: number, item: Item) {
+        console.log(item.price);
+        const response = await fetch('/api/order/add-order-items', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                order_id: Number(orderId),
+                product_id: Number(item.product_id),
+                quantity: 1,
+                price: item.price.toString(),
+            }),
+        });
+    }
+
     function transferToSeat(props: any) {
         setItem(props.item);
         setTool("transfer");
@@ -167,10 +287,9 @@ const DrawTest = () => {
 
     function ItemButton(props: any) {
         return (
-            <button className="grid-item" style={{ border: "2px solid black", borderRadius: "20px", textAlign: "center" }} onClick={() => addItem(props)}>
-                {props.name} | ${props.price}
-
-            </button>
+            <Button onClick={() => addItem(props)}>
+                {props.name} ${props.price}
+            </Button>
         );
     }
 
@@ -184,7 +303,7 @@ const DrawTest = () => {
 
     function addItem(item: any) {
         if (selectedChair) {
-            selectedChair.items.push(new Item(item.name, item.price));
+            selectedChair.items.push(new Item(item.name, item.price, item.itemId));
         }
     }
 
@@ -212,6 +331,85 @@ const DrawTest = () => {
         selectedChair.selected = false;
         setChairSelected(false);
         setSelectedChair(null);
+    }
+
+    function saveScene() {
+        let count = 0;
+        elements.forEach(element => {
+            if (element instanceof Table) {
+                saveTable(element, count);
+            } else if (element instanceof Chair) {
+                saveChair(element);
+            }
+            count++;
+        });
+    }
+
+    async function saveTable(table: Table, id: number) {
+        const response = await fetch('/api/scene/add-table', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                scene_id: 1,
+                x1: table.x1,
+                y1: table.y1,
+                x2: table.x2,
+                y2: table.y2,
+                element_id: id
+            }),
+        });
+    }
+
+    async function saveChair(chair: Chair) {
+        const response = await fetch('/api/scene/add-chair', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                scene_id: 1,
+                x1: chair.x1,
+                y1: chair.y1,
+                x2: chair.x2,
+                y2: chair.y2,
+                table_id: chair.table.id,
+                element_id: chair.id
+            }),
+        });
+    }
+
+    function loadScene() {
+        setElements([]);
+
+
+        //combine arrays rawTables and rawChairs into one array rawScene
+        let rawScene: any[] = [];
+        rawTables.forEach(element => {
+            rawScene.push(element);
+        });
+
+        rawChairs.forEach(element => {
+            rawScene.push(element);
+        });
+
+        //sort rawScene by element_id
+        rawScene.sort((a, b) => a.element_id - b.element_id);
+
+        console.log(rawScene);
+
+        rawScene.forEach(element => {
+            if (element.type == "table") {
+                setElements(elements => [...elements, new Table(element.element_id, element.x1, element.y1, element.x2, element.y2)]);
+            }
+            else if (element.type == "chair") {
+                setElements(elements => [...elements, new Chair(element.element_id, element.x1, element.y1, element.x2, element.y2, elements[element.table_id])]);
+                if (elements[element.table_id] instanceof Table) {
+                    elements[element.table_id].seats.push(elements[elements.length - 1]);
+                }
+            }
+        });
     }
 
     function createElement(element: Table | Chair) {
@@ -530,36 +728,41 @@ const DrawTest = () => {
                         <b>
                             ({mousePos.x}, {mousePos.y})
                         </b>
+                        <button onClick={saveScene}>Save Scene</button>
+                        <button onClick={loadScene}>Load Scene</button>
                     </div>
                     {(chairSelected === true || tableSelected === true) &&
                         <div style={{ position: "absolute", right: "0", marginTop: "60px", width: window.innerWidth * .25, height: window.innerHeight / 2, border: "2px solid black", overflow: "scroll", gridTemplateColumns: "33% 33% 33%" }}>
                             <Tabs>
                                 <TabList style={{ listStyle: "none", padding: "0", display: "flex", margin: "auto", width: "100%", alignItems: "stretch" }}>
-                                    <Tab style={{ marginTop: "0" }}>
-                                        <TabOption name="Order" />
-                                    </Tab>
+                                    {(chairSelected === true &&
+                                        <Tab style={{ marginTop: "0" }}>
+                                            <TabOption name="Order" />
+                                        </Tab>
+                                    )}
                                     <Tab>
                                         <TabOption name="Items" />
                                     </Tab>
-                                    {(chairSelected === true) &&
-                                        <Tab>
-                                            <TabOption name="Transfer" />
-                                        </Tab>
-                                    }
                                 </TabList>
+                                {(chairSelected === true &&
+                                    <TabPanel>
+                                        <GridContainer>
+                                            {(1 == 1 && inventory_items_list.map((item: any, index: any) => {
+                                                return (
+                                                    <ItemButton name={item.name} price={item.price} itemId={item.inventory_item_id} />
+                                                )
+                                            }))}
+                                        </GridContainer>
+                                    </TabPanel>
+                                )}
                                 <TabPanel>
-                                    <div className="grid-container" style={{ display: "grid", gap: "50px 100px" }}>
-                                        <ItemButton name="test" price="10.12" />
-                                        <ItemButton name="test" />
-                                        <ItemButton name="test" />
-                                        <ItemButton name="test" />
-                                        <ItemButton name="test" />
-                                    </div>
-                                </TabPanel>
-                                <TabPanel>
-                                {(chairSelected === true && selectedChair && selectedChair.items.length > 0) && 
-                                    <button onClick={transferAllToSeat}>Transfer All To Seat</button>
-                                }
+
+                                    {(chairSelected === true && selectedChair && selectedChair.items.length > 0) &&
+                                        <div>
+                                            <button onClick={() => startOrder(selectedChair.items)}>Print Check</button>
+                                            <button onClick={transferAllToSeat}>Transfer All To Seat</button>
+                                        </div>
+                                    }
                                     {(chairSelected === true) &&
                                         selectedChair?.items.map((item: any, index: any) => {
                                             return (
@@ -575,17 +778,11 @@ const DrawTest = () => {
                                         )
                                     }
 
-
                                     {(tableSelected === true) &&
                                         <ItemTab tableSelected={tableSelected} table={selectedTable} />
                                     }
 
                                 </TabPanel>
-                                {(chairSelected === true) &&
-                                    <TabPanel>
-                                        TODO
-                                    </TabPanel>
-                                }
                             </Tabs>
                         </div>
                     }
