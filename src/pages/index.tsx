@@ -57,7 +57,7 @@ const ButtonContainer = styled.div`
 `;
 
 const handleDraw = () => {
-  router.push('/drawTest');
+  router.push('/Tableorder');
 };
 
 const handleCheckout = () => {
